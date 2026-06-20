@@ -1,0 +1,1649 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AlertaVec — Seguridad Vecinal</title>
+  <meta name="theme-color" content="#e74c3c"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <!-- Leaflet Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    .map-toggle-btn{
+    position:absolute;
+    top:15px;
+    right:15px;
+    z-index:9999;
+    width:42px;
+    height:42px;
+    border:none;
+    border-radius:10px;
+    background:rgba(15,17,23,.9);
+    color:#fff;
+    font-size:20px;
+    cursor:pointer;
+}
+
+.map-container.fullscreen{
+    position:fixed !important;
+    top:0 !important;
+    left:0 !important;
+    width:100vw !important;
+    height:100vh !important;
+    z-index:99999 !important;
+}
+    :root {
+      --red: #e74c3c;
+      --red-dark: #c0392b;
+      --red-glow: rgba(231,76,60,0.3);
+      --orange: #f39c12;
+      --blue: #007AFF;
+      --green: #27ae60;
+      --bg: #0f1117;
+      --bg2: #1a1f2e;
+      --bg3: #232b3e;
+      --card: #1e2438;
+      --border: rgba(255,255,255,0.08);
+      --text: #f0f0f0;
+      --text2: #9aa0b0;
+      --font: 'Space Grotesk', sans-serif;
+      --font2: 'Inter', sans-serif;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    body { font-family:var(--font2); background:var(--bg); color:var(--text); height:100dvh; overflow:hidden; }
+    
+    /* ===== SCREENS ===== */
+    .screen { display:none; position:absolute; inset:0; flex-direction:column; overflow:hidden; }
+    .screen.active { display:flex; }
+
+    /* ===== LOGIN ===== */
+    #screen-login {
+      background: radial-gradient(ellipse at 50% 0%, #2d0a0a 0%, var(--bg) 70%);
+      align-items: center; justify-content: center; padding: 24px;
+    }
+    .pulse-ring { position:absolute; border-radius:50%; border:1px solid var(--red-glow); animation:pulse 3s ease-out infinite; pointer-events:none; }
+    .pulse-ring.r1 { width:200px;height:200px;top:50%;left:50%;transform:translate(-50%,-50%); animation-delay:0s; }
+    .pulse-ring.r2 { width:350px;height:350px;top:50%;left:50%;transform:translate(-50%,-50%); animation-delay:1s; }
+    .pulse-ring.r3 { width:500px;height:500px;top:50%;left:50%;transform:translate(-50%,-50%); animation-delay:2s; }
+    @keyframes pulse { 0%{opacity:0.6;transform:translate(-50%,-50%) scale(0.9)} 100%{opacity:0;transform:translate(-50%,-50%) scale(1.1)} }
+    .login-card { background:var(--card); border:1px solid var(--border); border-radius:24px; padding:32px 28px; width:100%; max-width:400px; position:relative; z-index:2; }
+    .logo-wrap { text-align:center; margin-bottom:28px; }
+    .logo-icon { font-size:48px; margin-bottom:8px; }
+    .logo-text { font-family:var(--font); font-size:28px; font-weight:700; background:linear-gradient(135deg,#fff,#e74c3c); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .logo-sub { color:var(--text2); font-size:13px; margin-top:4px; }
+    .tabs-auth { display:flex; background:var(--bg2); border-radius:12px; padding:4px; margin-bottom:20px; }
+    .tab-auth { flex:1; padding:10px; text-align:center; border-radius:8px; cursor:pointer; font-size:14px; font-weight:600; color:var(--text2); transition:all .2s; border:none; background:none; }
+    .tab-auth.active { background:var(--red); color:white; }
+
+    /* ===== FORMS ===== */
+    .form-group { margin-bottom:16px; }
+    .form-group label { display:block; font-size:12px; font-weight:600; color:var(--text2); margin-bottom:6px; text-transform:uppercase; letter-spacing:.5px; }
+    .form-group input, .form-group select, .form-group textarea { width:100%; background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:13px 15px; color:var(--text); font-family:var(--font2); font-size:15px; outline:none; transition:border-color .2s; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color:var(--red); }
+    .form-group select { appearance:none; cursor:pointer; }
+    .btn-primary { background:var(--red); border:none; border-radius:12px; color:white; font-family:var(--font); font-size:16px; font-weight:700; padding:15px; cursor:pointer; transition:all .15s; width:100%; }
+    .btn-primary:active { transform:scale(0.97); background:var(--red-dark); }
+    .btn-ghost { background:transparent; border:1px solid var(--border); border-radius:12px; color:var(--text2); font-family:var(--font2); font-size:15px; padding:13px; cursor:pointer; width:100%; margin-top:10px; transition:all .15s; }
+    .btn-ghost:active { border-color:var(--red); color:var(--red); }
+    .badge-row { display:flex; gap:8px; justify-content:center; margin-top:20px; flex-wrap:wrap; }
+    .badge { background:rgba(255,255,255,0.06); border:1px solid var(--border); border-radius:20px; padding:4px 12px; font-size:11px; color:var(--text2); }
+
+    /* ===== TOPBAR ===== */
+    .topbar { display:flex; align-items:center; padding:12px 16px; background:var(--bg2); border-bottom:1px solid var(--border); gap:12px; min-height:52px; }
+    .topbar h2 { font-family:var(--font); font-size:18px; font-weight:700; flex:1; }
+    .back-btn { background:none; border:none; color:var(--text); font-size:20px; cursor:pointer; padding:4px; }
+    .topbar-home { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:rgba(15,17,23,0.9); backdrop-filter:blur(20px); position:absolute; top:0; left:0; right:0; z-index:10; }
+    .topbar-left { display:flex; align-items:center; gap:12px; }
+    .avatar { width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--red),#9b59b6);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0; }
+    .topbar-greeting { font-family:var(--font); font-size:15px; font-weight:600; }
+    .topbar-loc { font-size:12px; color:var(--text2); }
+    .notif-btn { background:rgba(255,255,255,0.07); border:1px solid var(--border); border-radius:50%; width:38px;height:38px;font-size:18px;cursor:pointer;position:relative;display:flex;align-items:center;justify-content:center; }
+    .notif-dot { position:absolute;top:6px;right:6px;width:8px;height:8px;background:var(--red);border-radius:50%;border:2px solid var(--bg2); }
+
+    /* ===== MAP ===== */
+    .map-container { flex:1; position:relative; overflow:hidden; }
+    #leaflet-map { width:100%; height:100%; z-index:1; }
+    .map-legend { position:absolute; bottom:80px; left:12px; background:rgba(15,17,23,0.85); backdrop-filter:blur(10px); border:1px solid var(--border); border-radius:12px; padding:10px 14px; z-index:5; display:flex; flex-direction:column; gap:6px; }
+    .legend-item { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text2); }
+    .dot { width:10px;height:10px;border-radius:50%;flex-shrink:0; }
+    .dot.red { background:var(--red); }
+    .dot.orange { background:var(--orange); }
+    .dot.blue { background:var(--blue); }
+    .incident-panel { position:absolute; bottom:80px; left:12px; right:12px; background:var(--card); border:1px solid var(--border); border-radius:16px; padding:16px; z-index:10; box-shadow:0 8px 32px rgba(0,0,0,0.5); }
+    .incident-panel.hidden { display:none; }
+    .incident-header { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+    .incident-title { font-family:var(--font); font-size:15px; font-weight:700; }
+    .incident-time { font-size:12px; color:var(--text2); }
+    .incident-header > button { margin-left:auto; background:none; border:none; color:var(--text2); font-size:18px; cursor:pointer; }
+    .incident-desc { font-size:13px; color:var(--text2); line-height:1.5; margin-bottom:12px; }
+    .btn-sm-red { background:var(--red); border:none; border-radius:10px; color:white; font-size:13px; font-weight:600; padding:9px 18px; cursor:pointer; width:100%; }
+
+    /* ===== STATS ===== */
+    .stats-row { display:flex; gap:8px; padding:10px 12px; background:var(--bg); border-top:1px solid var(--border); }
+    .stat-card { flex:1; background:var(--card); border-radius:12px; padding:10px; text-align:center; cursor:pointer; border:1px solid var(--border); }
+    .stat-num { font-family:var(--font); font-size:20px; font-weight:700; }
+    .stat-num.red { color:var(--red); }
+    .stat-num.blue { color:var(--blue); }
+    .stat-num.green { color:var(--green); }
+    .stat-lbl { font-size:10px; color:var(--text2); margin-top:2px; }
+
+    /* ===== BOTTOM NAV ===== */
+    .bottom-nav { display:flex; background:var(--bg2); border-top:1px solid var(--border); padding:6px 0 8px; safe-area-inset-bottom: env(safe-area-inset-bottom); }
+    .nav-btn { flex:1; background:none; border:none; color:var(--text2); font-size:10px; display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; padding:4px 0; transition:color .15s; }
+    .nav-btn span { font-size:10px; }
+    .nav-btn .nav-icon { font-size:20px; line-height:1; }
+    .nav-btn.active { color:var(--red); }
+    .nav-btn.panic-center { position:relative; }
+    .nav-btn.panic-center .nav-icon { width:46px;height:46px;background:linear-gradient(135deg,var(--red),#9b2335);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;margin-top:-16px;box-shadow:0 4px 20px var(--red-glow);border:2px solid var(--red-dark); }
+
+    /* ===== SCROLLABLE CONTENT ===== */
+    .content-pad { flex:1; overflow-y:auto; padding:16px; }
+    .content-pad::-webkit-scrollbar { width:0; }
+
+    /* ===== ALERTS ===== */
+    .alerts-list { flex:1; overflow-y:auto; padding:12px; display:flex; flex-direction:column; gap:10px; }
+    .alert-card { background:var(--card); border-radius:14px; padding:14px; border-left:4px solid var(--red); border:1px solid var(--border); border-left-width:4px; }
+    .alert-card.orange { border-left-color:var(--orange); }
+    .alert-card.yellow { border-left-color:#f1c40f; }
+    .alert-card.purple { border-left-color:#9b59b6; }
+    .alert-top { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+    .alert-type { font-family:var(--font); font-size:14px; font-weight:700; flex:1; }
+    .alert-time { font-size:11px; color:var(--text2); }
+    .alert-desc { font-size:13px; color:var(--text2); line-height:1.5; margin-bottom:8px; }
+    .alert-foot { display:flex; flex-wrap:wrap; gap:8px; }
+    .alert-meta { font-size:11px; color:var(--text2); background:rgba(255,255,255,0.04); padding:3px 8px; border-radius:6px; }
+    .filter-bar { display:flex; gap:8px; padding:10px 12px; overflow-x:auto; }
+    .filter-bar::-webkit-scrollbar { height:0; }
+    .chip { background:var(--bg3); border:1px solid var(--border); border-radius:20px; padding:6px 14px; font-size:13px; color:var(--text2); cursor:pointer; white-space:nowrap; }
+    .chip.active { background:var(--red); border-color:var(--red); color:white; }
+    .filter-btn { background:none; border:1px solid var(--border); border-radius:8px; color:var(--text2); font-size:13px; padding:5px 12px; cursor:pointer; }
+
+    /* ===== REPORT ===== */
+    .section-hint { font-size:13px; color:var(--text2); margin-bottom:14px; }
+    .type-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:20px; }
+    .type-btn { background:var(--bg2); border:2px solid var(--border); border-radius:12px; padding:14px 8px; font-size:12px; cursor:pointer; color:var(--text2); transition:all .15s; display:flex; flex-direction:column; align-items:center; gap:6px; font-family:var(--font2); }
+    .type-btn .type-emoji { font-size:24px; }
+    .type-btn.selected { border-color:var(--red); background:rgba(231,76,60,0.1); color:var(--text); }
+    .anon-row { display:flex; align-items:center; justify-content:space-between; background:var(--bg2); border-radius:12px; padding:14px; margin-bottom:16px; }
+    .toggle-label { display:flex; align-items:center; gap:10px; cursor:pointer; font-size:14px; }
+    .toggle-label input { display:none; }
+    .toggle-slider { width:44px;height:24px;background:var(--bg3);border-radius:12px;position:relative;transition:.2s;flex-shrink:0; }
+    .toggle-slider::after { content:'';position:absolute;width:20px;height:20px;background:white;border-radius:50%;top:2px;left:2px;transition:.2s; }
+    input:checked + .toggle-slider { background:var(--green); }
+    input:checked + .toggle-slider::after { left:22px; }
+
+    /* ===== SOS / PANIC ===== */
+    .panic-screen { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; gap:24px; background:radial-gradient(ellipse at center, #1a0505 0%, var(--bg) 70%); }
+    .panic-info { background:var(--card); border-radius:16px; padding:20px; width:100%; border:1px solid var(--border); }
+    .panic-info p { font-size:14px; color:var(--text2); margin-bottom:14px; text-align:center; }
+    .authority-list { display:flex; flex-direction:column; gap:10px; }
+    .authority-item { background:var(--bg2); border-radius:10px; padding:12px 16px; font-size:14px; font-weight:500; border-left:3px solid var(--red); }
+    .panic-btn-wrap { position:relative; display:flex; align-items:center; justify-content:center; }
+    .panic-outer-ring { position:absolute; width:180px;height:180px;border-radius:50%;border:2px solid rgba(231,76,60,0.3);animation:panic-pulse 2s ease-in-out infinite; }
+    .panic-outer-ring.r2 { width:220px;height:220px;animation-delay:.5s; }
+    @keyframes panic-pulse { 0%,100%{opacity:0.3;transform:scale(0.95)} 50%{opacity:0.7;transform:scale(1.05)} }
+    .panic-btn {
+      width:150px;height:150px;border-radius:50%;
+      background:radial-gradient(circle at 35% 35%, #ff6b6b, var(--red-dark));
+      border:none;cursor:pointer;position:relative;z-index:2;
+      box-shadow:0 0 40px var(--red-glow), 0 0 80px rgba(231,76,60,0.15), inset 0 1px 0 rgba(255,255,255,0.2);
+      transition:all .1s;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      -webkit-user-select:none;user-select:none;
+    }
+    .panic-btn:active { transform:scale(0.95); box-shadow:0 0 20px var(--red-glow); }
+    .panic-label { font-family:var(--font); font-size:36px; font-weight:700; color:white; letter-spacing:2px; }
+    .panic-sub { font-size:11px; color:rgba(255,255,255,0.7); margin-top:4px; }
+    .panic-progress { position:absolute; bottom:-20px; left:50%; transform:translateX(-50%); width:120px; height:4px; background:rgba(255,255,255,0.1); border-radius:2px; overflow:hidden; }
+    .panic-progress::after { content:''; display:block; height:100%; width:0; background:var(--red); border-radius:2px; transition:none; }
+    .panic-progress.filling::after { width:100%; transition:width 2s linear; }
+    .panic-sent { display:none; width:100%; background:var(--card); border-radius:20px; padding:24px; text-align:center; border:1px solid rgba(231,76,60,0.3); }
+    .panic-sent.show { display:flex; flex-direction:column; align-items:center; gap:12px; }
+    .sent-icon { font-size:48px; }
+    .panic-sent h3 { font-family:var(--font); font-size:22px; font-weight:700; color:var(--red); }
+    .panic-sent p { font-size:14px; color:var(--text2); line-height:1.6; }
+    .tracking-bar { display:flex; align-items:center; width:100%; margin:8px 0; }
+    .tracking-dot { width:16px;height:16px;border-radius:50%;border:2px solid var(--border);background:var(--bg2);transition:.5s; }
+    .tracking-dot.active { background:var(--green);border-color:var(--green);box-shadow:0 0 10px rgba(39,174,96,0.5); }
+    .tracking-line { flex:1;height:2px;background:var(--border); }
+    .tracking-labels { display:flex; justify-content:space-between; width:100%; font-size:11px; color:var(--text2); }
+    .sos-timer { font-size:13px; color:var(--text2); }
+    .sos-count { font-size:36px; font-family:var(--font); font-weight:700; color:var(--red); }
+
+    /* ===== COMMUNITY / FORO ===== */
+    .community-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:20px; }
+    .c-stat { background:var(--card); border-radius:12px; padding:14px 10px; text-align:center; border:1px solid var(--border); }
+    .c-num { font-family:var(--font); font-size:22px; font-weight:700; color:var(--red); }
+    .c-lbl { font-size:11px; color:var(--text2); margin-top:2px; }
+    .section-title { font-family:var(--font); font-size:16px; font-weight:700; margin-bottom:14px; }
+    .forum-list { display:flex; flex-direction:column; gap:10px; margin-bottom:16px; }
+    .forum-post { background:var(--card); border-radius:14px; padding:14px; border:1px solid var(--border); }
+    .post-author { display:flex; align-items:center; gap:8px; margin-bottom:8px; font-size:14px; font-weight:600; }
+    .post-avatar { width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--blue),#9b59b6);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0; }
+    .post-badge { font-size:10px; padding:2px 8px; border-radius:10px; margin-left:auto; }
+    .post-badge.report { background:rgba(231,76,60,0.15); color:var(--red); }
+    .post-badge.msg { background:rgba(0,122,255,0.12); color:var(--blue); }
+    .post-badge.loc { background:rgba(39,174,96,0.12); color:var(--green); }
+    .post-text { font-size:13px; color:var(--text2); line-height:1.6; margin-bottom:8px; }
+    .post-meta { font-size:11px; color:var(--text2); display:flex; align-items:center; gap:10px; }
+    .post-meta-date { margin-right:auto; }
+    .like-btn { background:none;border:none;color:var(--text2);cursor:pointer;font-size:12px;display:flex;align-items:center;gap:4px;padding:4px 8px;border-radius:8px;transition:.15s; }
+    .like-btn:active { background:rgba(255,255,255,0.05); }
+    .post-loc-tag { background:rgba(39,174,96,0.12); color:var(--green); border-radius:8px; padding:3px 8px; font-size:11px; display:inline-flex; align-items:center; gap:4px; margin-bottom:6px; cursor:pointer; }
+    .post-box { background:var(--card); border-radius:16px; padding:14px; border:1px solid var(--border); }
+    .post-box textarea { width:100%; background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:12px; color:var(--text); font-family:var(--font2); font-size:14px; resize:none; outline:none; margin-bottom:10px; }
+    .post-box textarea:focus { border-color:var(--blue); }
+    .post-actions { display:flex; gap:8px; align-items:center; }
+    .btn-icon { background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:10px 14px; font-size:16px; cursor:pointer; transition:.15s; }
+    .btn-icon:active { background:rgba(255,255,255,0.05); }
+    .btn-send { flex:1; background:var(--blue); border:none; border-radius:10px; color:white; font-family:var(--font); font-size:15px; font-weight:600; padding:11px; cursor:pointer; }
+
+    /* ===== PROFILE ===== */
+    .profile-header { text-align:center; margin-bottom:24px; }
+    .profile-avatar { width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--red),#9b59b6);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;margin:0 auto 12px; }
+    .profile-name { font-family:var(--font); font-size:20px; font-weight:700; margin-bottom:4px; }
+    .profile-district { font-size:13px; color:var(--text2); margin-bottom:8px; }
+    .profile-badge { display:inline-block; background:rgba(241,196,15,0.15); border:1px solid rgba(241,196,15,0.3); color:#f1c40f; font-size:12px; padding:4px 12px; border-radius:20px; }
+    .profile-stats { display:flex; gap:0; background:var(--card); border-radius:14px; border:1px solid var(--border); overflow:hidden; margin-bottom:20px; }
+    .ps-item { flex:1; padding:16px 10px; text-align:center; border-right:1px solid var(--border); }
+    .ps-item:last-child { border-right:none; }
+    .ps-num { font-family:var(--font); font-size:22px; font-weight:700; color:var(--red); }
+    .ps-lbl { font-size:11px; color:var(--text2); margin-top:2px; }
+    .contacts-list { background:var(--card); border-radius:14px; border:1px solid var(--border); overflow:hidden; margin-bottom:20px; }
+    .contact-item { display:flex; justify-content:space-between; align-items:center; padding:14px 16px; border-bottom:1px solid var(--border); font-size:14px; }
+    .contact-item:last-child { border-bottom:none; }
+    .contact-phone { color:var(--blue); font-size:13px; }
+    .settings-list { background:var(--card); border-radius:14px; border:1px solid var(--border); overflow:hidden; margin-bottom:20px; }
+    .setting-item { display:flex; justify-content:space-between; align-items:center; padding:14px 16px; border-bottom:1px solid var(--border); font-size:14px; }
+    .setting-item:last-child { border-bottom:none; }
+    .red-ghost { border-color:rgba(231,76,60,0.3)!important; color:var(--red)!important; }
+
+    /* ===== TOAST ===== */
+    .toast { position:fixed; bottom:90px; left:50%; transform:translateX(-50%); background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px 20px; font-size:14px; font-weight:500; z-index:9999; box-shadow:0 8px 32px rgba(0,0,0,0.4); transition:opacity .3s; white-space:nowrap; max-width:90vw; }
+    .toast.hidden { opacity:0; pointer-events:none; }
+
+    /* ===== MODAL ===== */
+    .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:100; display:flex; align-items:flex-end; backdrop-filter:blur(4px); }
+    .modal-overlay.hidden { display:none; }
+    .modal-sheet { background:var(--card); border-radius:24px 24px 0 0; padding:24px; width:100%; border-top:1px solid var(--border); max-height:80vh; overflow-y:auto; }
+    .modal-handle { width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px; }
+    .modal-title { font-family:var(--font); font-size:18px; font-weight:700; margin-bottom:16px; }
+
+    /* ===== LOADING OVERLAY ===== */
+    .loading-overlay { position:fixed; inset:0; background:var(--bg); z-index:9999; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:16px; }
+    .loading-overlay.hidden { display:none; }
+    .loading-spinner { width:48px;height:48px;border:3px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:spin 1s linear infinite; }
+    @keyframes spin { to{transform:rotate(360deg)} }
+    .loading-text { font-size:14px; color:var(--text2); }
+
+    /* Leaflet custom markers */
+    .custom-marker { width:36px;height:36px;border-radius:50%;border:3px solid white;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 4px 12px rgba(0,0,0,0.4); }
+    .custom-marker.red { background:var(--red); }
+    .custom-marker.orange { background:var(--orange); }
+    .custom-marker.blue { background:var(--blue); }
+    .custom-marker.pulse-marker { animation:markerPulse 2s ease-in-out infinite; }
+    @keyframes markerPulse { 0%,100%{box-shadow:0 0 0 0 rgba(231,76,60,0.4)} 50%{box-shadow:0 0 0 12px rgba(231,76,60,0)} }
+
+    /* SOS shake animation */
+    @keyframes shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-4px)} 40%,80%{transform:translateX(4px)} }
+    .shake { animation:shake .4s ease; }
+
+    /* Screen content scroll */
+    #screen-alerts { overflow:hidden; }
+    #screen-community .content-pad { display:flex; flex-direction:column; }
+
+    /* Botones de zoom + / - más grandes */
+    .leaflet-control-zoom a {
+        width: 42px;
+        height: 42px;
+        line-height: 42px;
+        font-size: 22px;
+    }
+
+    /* Mini-mapa para elegir ubicación exacta del reporte */
+    #report-map { width:100%; height:190px; border-radius:14px; border:1px solid var(--border); margin-top:8px; z-index:1; }
+    .report-map-row { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:8px; font-size:12px; color:var(--text2); }
+    #report-map-hint { flex:1; line-height:1.4; }
+    .btn-mini { flex-shrink:0; background:var(--bg3); border:1px solid var(--border); color:var(--text); font-family:var(--font2); font-size:12px; font-weight:600; padding:8px 10px; border-radius:10px; cursor:pointer; }
+    .btn-mini:active { border-color:var(--red); color:var(--red); }
+
+    /* Panel de administrador */
+    .admin-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:16px; }
+    .admin-tabs .tab-auth { font-size:12px; padding:10px 4px; }
+    .admin-panel { display:flex; flex-direction:column; gap:10px; }
+    .admin-item { background:var(--card); border-radius:14px; padding:14px; border:1px solid var(--border); display:flex; flex-direction:column; gap:6px; }
+    .admin-item-top { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+    .admin-item-title { font-family:var(--font); font-weight:700; font-size:14px; }
+    .admin-item-meta { font-size:12px; color:var(--text2); }
+    .admin-item-desc { font-size:13px; color:var(--text2); line-height:1.5; }
+    .btn-del { flex-shrink:0; background:rgba(231,76,60,0.12); border:1px solid rgba(231,76,60,0.4); color:var(--red); font-size:12px; font-weight:700; padding:7px 10px; border-radius:8px; cursor:pointer; }
+    .btn-del:active { background:var(--red); color:white; }
+    .admin-empty { text-align:center; color:var(--text2); font-size:13px; padding:24px 0; }
+    .admin-role-tag { font-size:11px; padding:2px 8px; border-radius:6px; background:rgba(231,76,60,0.15); color:var(--red); font-weight:700; }
+  </style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loading-overlay" class="loading-overlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Cargando AlertaVec...</div>
+</div>
+
+<!-- ===== LOGIN ===== -->
+<div id="screen-login" class="screen">
+  <div class="pulse-ring r1"></div>
+  <div class="pulse-ring r2"></div>
+  <div class="pulse-ring r3"></div>
+  <div class="login-card">
+    <div class="logo-wrap">
+      <div class="logo-icon">🛡️</div>
+      <h1 class="logo-text">AlertaVec</h1>
+      <p class="logo-sub">Seguridad vecinal en tiempo real</p>
+    </div>
+    <div class="tabs-auth">
+      <button class="tab-auth active" id="tab-login-btn" onclick="switchAuthTab('login')">Iniciar sesión</button>
+      <button class="tab-auth" id="tab-reg-btn" onclick="switchAuthTab('register')">Crear cuenta</button>
+    </div>
+    <!-- LOGIN FORM -->
+    <div id="auth-login">
+      <div class="form-group">
+        <label>Correo electrónico</label>
+        <input type="email" id="login-email" placeholder="tucorreo@ejemplo.com"/>
+      </div>
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input type="password" id="login-pass" placeholder="••••••••"/>
+      </div>
+      <button class="btn-primary" onclick="login()">Ingresar</button>
+    </div>
+    <!-- REGISTER FORM -->
+    <div id="auth-register" style="display:none">
+      <div class="form-group">
+        <label>Nombre completo</label>
+        <input type="text" id="reg-name" placeholder="Juan Pérez"/>
+      </div>
+      <div class="form-group">
+        <label>Correo electrónico</label>
+        <input type="email" id="reg-email" placeholder="tucorreo@ejemplo.com"/>
+      </div>
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input type="password" id="reg-pass" placeholder="Mínimo 6 caracteres"/>
+      </div>
+      <div class="form-group">
+        <label>Distrito</label>
+        <select id="reg-district">
+          <option value="">Selecciona tu distrito</option>
+          <option>Miraflores</option><option>San Isidro</option><option>Barranco</option>
+          <option>Surco</option><option>La Molina</option><option>San Borja</option>
+          <option>Jesús María</option><option>Lince</option><option>Chorrillos</option>
+          <option>San Miguel</option><option>Pueblo Libre</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Teléfono</label>
+        <input type="tel" id="reg-phone" placeholder="9XX XXX XXX"/>
+      </div>
+      <button class="btn-primary" onclick="register()">Crear cuenta</button>
+    </div>
+    <div class="badge-row">
+      <span class="badge">ODS 11</span>
+      <span class="badge">ODS 16</span>
+      <span class="badge">Design Thinking</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== DASHBOARD (MAPA) ===== -->
+<div id="screen-home" class="screen">
+  <div class="topbar-home">
+    <div class="topbar-left">
+      <div class="avatar" id="home-avatar" onclick="showScreen('screen-profile')">JR</div>
+      <div>
+        <div class="topbar-greeting" id="home-greeting">Hola 👋</div>
+        <div class="topbar-loc" id="home-loc">📍 Miraflores, Lima</div>
+      </div>
+    </div>
+    <button class="notif-btn" onclick="showScreen('screen-alerts')">🔔<span class="notif-dot"></span></button>
+  </div>
+  <div class="map-container">
+    <button id="map-toggle-btn"
+        class="map-toggle-btn"
+        onclick="toggleMapSize()">
+    ⛶
+</button>
+    <div id="leaflet-map"></div>
+    <div class="map-legend">
+      <div class="legend-item"><span class="dot red"></span> Alto riesgo</div>
+      <div class="legend-item"><span class="dot orange"></span> Riesgo medio</div>
+      <div class="legend-item"><span class="dot blue"></span> Mi posición</div>
+    </div>
+    <div id="incident-panel" class="incident-panel hidden">
+      <div class="incident-header">
+        <span id="incident-icon">🔴</span>
+        <div>
+          <div id="incident-title" class="incident-title">Incidente</div>
+          <div id="incident-time" class="incident-time"></div>
+        </div>
+        <button onclick="closeIncident()">✕</button>
+      </div>
+      <div id="incident-desc" class="incident-desc"></div>
+      <button class="btn-sm-red" onclick="confirmIncident()">Confirmar alerta</button>
+    </div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-card" onclick="showScreen('screen-alerts')">
+      <div class="stat-num red" id="stat-alerts">3</div>
+      <div class="stat-lbl">Alertas hoy</div>
+    </div>
+    <div class="stat-card" onclick="showScreen('screen-community')">
+      <div class="stat-num blue" id="stat-vecinos">47</div>
+      <div class="stat-lbl">Vecinos activos</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num green">12 min</div>
+      <div class="stat-lbl">Resp. promedio</div>
+    </div>
+  </div>
+  <nav class="bottom-nav">
+    <button class="nav-btn active" onclick="showScreen('screen-home')"><span class="nav-icon">🗺️</span><span>Mapa</span></button>
+    <button class="nav-btn" onclick="showScreen('screen-alerts')"><span class="nav-icon">🔔</span><span>Alertas</span></button>
+    <button class="nav-btn panic-center" onclick="showScreen('screen-panic')"><span class="nav-icon">🆘</span><span>S.O.S</span></button>
+    <button class="nav-btn" onclick="showScreen('screen-report')"><span class="nav-icon">📋</span><span>Reportar</span></button>
+    <button class="nav-btn" onclick="showScreen('screen-community')"><span class="nav-icon">👥</span><span>Comunidad</span></button>
+  </nav>
+</div>
+
+<!-- ===== ALERTAS ===== -->
+<div id="screen-alerts" class="screen">
+  <div class="topbar">
+    <button class="back-btn" onclick="showScreen('screen-home')">←</button>
+    <h2>Alertas Recientes</h2>
+    <button class="filter-btn" onclick="toggleFilter()">Filtrar</button>
+  </div>
+  <div id="filter-bar" class="filter-bar" style="display:none">
+    <button class="chip active" onclick="filterAlerts('all',this)">Todas</button>
+    <button class="chip" onclick="filterAlerts('robo',this)">Robo</button>
+    <button class="chip" onclick="filterAlerts('sospechoso',this)">Sospechoso</button>
+    <button class="chip" onclick="filterAlerts('vandalismo',this)">Vandalismo</button>
+    <button class="chip" onclick="filterAlerts('acoso',this)">Acoso</button>
+  </div>
+  <div class="alerts-list" id="alerts-list"></div>
+  <nav class="bottom-nav">
+    <button class="nav-btn" onclick="showScreen('screen-home')"><span class="nav-icon">🗺️</span><span>Mapa</span></button>
+    <button class="nav-btn active" onclick="showScreen('screen-alerts')"><span class="nav-icon">🔔</span><span>Alertas</span></button>
+    <button class="nav-btn panic-center" onclick="showScreen('screen-panic')"><span class="nav-icon">🆘</span><span>S.O.S</span></button>
+    <button class="nav-btn" onclick="showScreen('screen-report')"><span class="nav-icon">📋</span><span>Reportar</span></button>
+    <button class="nav-btn" onclick="showScreen('screen-community')"><span class="nav-icon">👥</span><span>Comunidad</span></button>
+  </nav>
+</div>
+
+<!-- ===== REPORTE ===== -->
+<div id="screen-report" class="screen">
+  <div class="topbar">
+    <button class="back-btn" onclick="showScreen('screen-home')">←</button>
+    <h2>Hacer un Reporte</h2>
+  </div>
+  <div class="content-pad">
+    <p class="section-hint">¿Qué tipo de incidente deseas reportar?</p>
+    <div class="type-grid">
+      <button class="type-btn" onclick="selectType(this,'Robo / Asalto','robo','red')"><span class="type-emoji">🔴</span>Robo</button>
+      <button class="type-btn" onclick="selectType(this,'Persona sospechosa','sospechoso','orange')"><span class="type-emoji">🟠</span>Sospechoso</button>
+      <button class="type-btn" onclick="selectType(this,'Vandalismo','vandalismo','yellow')"><span class="type-emoji">🟡</span>Vandalismo</button>
+      <button class="type-btn" onclick="selectType(this,'Acoso','acoso','purple')"><span class="type-emoji">🟣</span>Acoso</button>
+      <button class="type-btn" onclick="selectType(this,'Accidente','accidente','blue')"><span class="type-emoji">🔵</span>Accidente</button>
+      <button class="type-btn" onclick="selectType(this,'Otro','otro','')"><span class="type-emoji">⚪</span>Otro</button>
+    </div>
+    <div class="form-group">
+      <label>Descripción del incidente</label>
+      <textarea id="report-desc" rows="4" placeholder="Describe lo que viste con el mayor detalle posible..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>📍 Ubica el punto exacto (arrastra el pin a la avenida)</label>
+      <div id="report-map"></div>
+      <div class="report-map-row">
+        <span id="report-map-hint">Obteniendo tu ubicación...</span>
+        <button type="button" class="btn-mini" onclick="resetReportPin()">📌 Mi ubicación</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Dirección aproximada</label>
+      <input type="text" id="report-addr" placeholder="Ej: Av. Larco con Schell, Miraflores"/>
+    </div>
+    <div class="anon-row">
+      <span style="font-size:14px">🕵️ Reportar anónimamente</span>
+      <label class="toggle-label">
+        <input type="checkbox" id="anon-check" checked/>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    <button class="btn-primary" onclick="submitReport()">📤 Enviar reporte</button>
+    <button class="btn-ghost" onclick="showScreen('screen-home')">Cancelar</button>
+  </div>
+  <nav class="bottom-nav">
+    <button class="nav-btn" onclick="showScreen('screen-home')"><span class="nav-icon">🗺️</span><span>Mapa</span></button>
+    <button class="nav-btn" onclick="showScreen('screen-alerts')"><span class="nav-icon">🔔</span><span>Alertas</span></button>
+    <button class="nav-btn panic-center" onclick="showScreen('screen-panic')"><span class="nav-icon">🆘</span><span>S.O.S</span></button>
+    <button class="nav-btn active" onclick="showScreen('screen-report')"><span class="nav-icon">📋</span><span>Reportar</span></button>
+    <button class="nav-btn" onclick="showScreen('screen-community')"><span class="nav-icon">👥</span><span>Comunidad</span></button>
+  </nav>
+</div>
+
+<!-- ===== SOS / PÁNICO ===== -->
+<div id="screen-panic" class="screen">
+  <div class="topbar" style="background:#1a0505;border-color:rgba(231,76,60,0.2)">
+    <button class="back-btn" onclick="showScreen('screen-home')">←</button>
+    <h2 style="color:var(--red)">⚠️ Botón de Pánico</h2>
+  </div>
+  <div class="panic-screen">
+    <div class="panic-info">
+      <p>Al activar, tu ubicación se compartirá con:</p>
+      <div class="authority-list">
+        <div class="authority-item">🚓 Serenazgo — 105</div>
+        <div class="authority-item">👮 Policía Nacional — 105</div>
+        <div class="authority-item">🏥 Emergencias — 116</div>
+        <div class="authority-item">👥 Vecinos cercanos</div>
+      </div>
+    </div>
+
+    <!-- Botón SOS activo -->
+    <div id="panic-wrap" class="panic-btn-wrap">
+      <div class="panic-outer-ring"></div>
+      <div class="panic-outer-ring r2"></div>
+      <button class="panic-btn" id="panic-main"
+        onmousedown="startPanic()" onmouseup="cancelPanic()"
+        ontouchstart="startPanic(event)" ontouchend="cancelPanic()">
+        <span class="panic-label">SOS</span>
+        <span class="panic-sub">Mantén presionado</span>
+      </button>
+      <div class="panic-progress" id="panic-progress"></div>
+    </div>
+
+    <!-- Countdown visual -->
+    <div id="panic-counting" style="display:none;text-align:center">
+      <div class="sos-count" id="sos-count">3</div>
+      <div class="sos-timer">Suelta para cancelar...</div>
+    </div>
+
+    <!-- Enviado -->
+    <div id="panic-sent" class="panic-sent">
+      <div class="sent-icon">🚨</div>
+      <h3>¡ALERTA ENVIADA!</h3>
+      <p>Las autoridades han sido notificadas.<br/>Tiempo estimado: <strong>8 min</strong></p>
+      <div class="tracking-bar">
+        <div class="tracking-dot active" id="tdot0"></div>
+        <div class="tracking-line"></div>
+        <div class="tracking-dot" id="tdot1"></div>
+        <div class="tracking-line"></div>
+        <div class="tracking-dot" id="tdot2"></div>
+      </div>
+      <div class="tracking-labels">
+        <span>Alerta enviada</span><span>En camino</span><span>Llegada</span>
+      </div>
+      <button class="btn-ghost" style="margin-top:16px;border-color:rgba(231,76,60,0.4);color:var(--red)" onclick="cancelSOS()">Cancelar alerta</button>
+    </div>
+  </div>
+  <nav class="bottom-nav">
+    <button class="nav-btn" onclick="showScreen('screen-home')"><span class="nav-icon">🗺️</span><span>Mapa</span></button>
+    <button class="nav-btn" onclick="showScreen('screen-alerts')"><span class="nav-icon">🔔</span><span>Alertas</span></button>
+    <button class="nav-btn panic-center active" onclick="showScreen('screen-panic')"><span class="nav-icon">🆘</span><span>S.O.S</span></button>
+    <button class="nav-btn" onclick="showScreen('screen-report')"><span class="nav-icon">📋</span><span>Reportar</span></button>
+    <button class="nav-btn" onclick="showScreen('screen-community')"><span class="nav-icon">👥</span><span>Comunidad</span></button>
+  </nav>
+</div>
+
+<!-- ===== COMUNIDAD ===== -->
+<div id="screen-community" class="screen">
+  <div class="topbar">
+    <button class="back-btn" onclick="showScreen('screen-home')">←</button>
+    <h2>Comunidad Vecinal</h2>
+  </div>
+  <div class="content-pad">
+    <div class="community-stats">
+      <div class="c-stat"><div class="c-num" id="stat-vec2">47</div><div class="c-lbl">Vecinos activos</div></div>
+      <div class="c-stat"><div class="c-num" id="stat-reportes">0</div><div class="c-lbl">Reportes este mes</div></div>
+      <div class="c-stat"><div class="c-num">94%</div><div class="c-lbl">Alertas resueltas</div></div>
+    </div>
+    <h3 class="section-title">💬 Foro vecinal</h3>
+    <div class="forum-list" id="forum-list"></div>
+    <div class="post-box">
+      <textarea id="new-post" placeholder="Comparte algo con tu comunidad..." rows="2"></textarea>
+      <div class="post-actions">
+        <button class="btn-icon" onclick="shareLocation()" title="Compartir ubicación">📍</button>
+        <button class="btn-send" onclick="addPost()">Publicar</button>
+      </div>
+    </div>
+  </div>
+  <nav class="bottom-nav">
+    <button class="nav-btn" onclick="showScreen('screen-home')"><span class="nav-icon">🗺️</span><span>Mapa</span></button>
+    <button class="nav-btn" onclick="showScreen('screen-alerts')"><span class="nav-icon">🔔</span><span>Alertas</span></button>
+    <button class="nav-btn panic-center" onclick="showScreen('screen-panic')"><span class="nav-icon">🆘</span><span>S.O.S</span></button>
+    <button class="nav-btn" onclick="showScreen('screen-report')"><span class="nav-icon">📋</span><span>Reportar</span></button>
+    <button class="nav-btn active" onclick="showScreen('screen-community')"><span class="nav-icon">👥</span><span>Comunidad</span></button>
+  </nav>
+</div>
+
+<!-- ===== PERFIL ===== -->
+<div id="screen-profile" class="screen">
+  <div class="topbar">
+    <button class="back-btn" onclick="showScreen('screen-home')">←</button>
+    <h2>Mi Perfil</h2>
+  </div>
+  <div class="content-pad">
+    <div class="profile-header">
+      <div class="profile-avatar" id="profile-avatar-disp">JR</div>
+      <div class="profile-name" id="profile-name-disp">Juan R.</div>
+      <div class="profile-district" id="profile-district-disp">📍 Miraflores, Lima</div>
+      <div class="profile-badge">⭐ Vecino Activo</div>
+    </div>
+    <div class="profile-stats">
+      <div class="ps-item"><span class="ps-num" id="p-stat-reports">0</span><span class="ps-lbl">Reportes</span></div>
+      <div class="ps-item"><span class="ps-num" id="p-stat-alerts">34</span><span class="ps-lbl">Alertas</span></div>
+      <div class="ps-item"><span class="ps-num">8</span><span class="ps-lbl">Confirmaciones</span></div>
+    </div>
+    <h3 class="section-title">Contactos de emergencia</h3>
+    <div class="contacts-list">
+      <div class="contact-item"><span>👨‍👩‍👧 Familia — Pedro R.</span><span class="contact-phone">987 654 321</span></div>
+      <div class="contact-item"><span>🏢 Serenazgo Miraflores</span><span class="contact-phone">01 617 7272</span></div>
+    </div>
+    <div class="settings-list">
+      <div class="setting-item"><span>🔔 Notificaciones</span><label class="toggle-label"><input type="checkbox" checked/><span class="toggle-slider"></span></label></div>
+      <div class="setting-item"><span>📍 Ubicación en tiempo real</span><label class="toggle-label"><input type="checkbox" checked/><span class="toggle-slider"></span></label></div>
+      <div class="setting-item"><span>🕵️ Modo anónimo</span><label class="toggle-label"><input type="checkbox"/><span class="toggle-slider"></span></label></div>
+    </div>
+    <button class="btn-ghost red-ghost" onclick="logout()">Cerrar sesión</button>
+  </div>
+</div>
+
+<!-- ===== PANEL DE ADMINISTRADOR ===== -->
+<div id="screen-admin" class="screen">
+  <div class="topbar">
+    <span style="font-size:20px">🛠️</span>
+    <h2>Panel de Administrador</h2>
+    <button class="back-btn" onclick="logout()" title="Cerrar sesión">⏻</button>
+  </div>
+  <div class="content-pad">
+    <div class="admin-stats">
+      <div class="c-stat"><div class="c-num" id="admin-stat-reports">0</div><div class="c-lbl">Reportes</div></div>
+      <div class="c-stat"><div class="c-num" id="admin-stat-forum">0</div><div class="c-lbl">Foro</div></div>
+      <div class="c-stat"><div class="c-num" id="admin-stat-users">0</div><div class="c-lbl">Usuarios</div></div>
+      <div class="c-stat"><div class="c-num" id="admin-stat-sos">0</div><div class="c-lbl">S.O.S</div></div>
+    </div>
+
+    <div class="tabs-auth admin-tabs">
+      <button class="tab-auth active" id="admin-tab-reports-btn" onclick="switchAdminTab('reports')">Reportes</button>
+      <button class="tab-auth" id="admin-tab-forum-btn" onclick="switchAdminTab('forum')">Foro</button>
+      <button class="tab-auth" id="admin-tab-users-btn" onclick="switchAdminTab('users')">Usuarios</button>
+      <button class="tab-auth" id="admin-tab-sos-btn" onclick="switchAdminTab('sos')">S.O.S</button>
+    </div>
+
+    <div id="admin-panel-reports" class="admin-panel">
+      <div id="admin-reports-list" class="forum-list"></div>
+    </div>
+    <div id="admin-panel-forum" class="admin-panel" style="display:none">
+      <div id="admin-forum-list" class="forum-list"></div>
+    </div>
+    <div id="admin-panel-users" class="admin-panel" style="display:none">
+      <div id="admin-users-list" class="forum-list"></div>
+    </div>
+    <div id="admin-panel-sos" class="admin-panel" style="display:none">
+      <div id="admin-sos-list" class="forum-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="toast hidden"></div>
+
+<!-- MODAL ubicación -->
+<div id="loc-modal" class="modal-overlay hidden" onclick="closeLocModal(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📍 Ubicación actual</div>
+    <p id="modal-loc-text" style="font-size:14px;color:var(--text2);margin-bottom:16px;line-height:1.6"></p>
+    <button class="btn-primary" onclick="confirmShareLocation()">Compartir en el foro</button>
+    <button class="btn-ghost" onclick="document.getElementById('loc-modal').classList.add('hidden')">Cancelar</button>
+  </div>
+</div>
+
+<script>
+// ===================================================================
+// DB: LocalStorage como base de datos
+// ===================================================================
+const DB = {
+  get(key, def = null) {
+    try { const v = localStorage.getItem('av_' + key); return v ? JSON.parse(v) : def; } catch { return def; }
+  },
+  set(key, val) {
+    try { localStorage.setItem('av_' + key, JSON.stringify(val)); } catch {}
+  },
+  push(key, item, maxItems = 200) {
+    const arr = DB.get(key, []);
+    arr.unshift(item);
+    if (arr.length > maxItems) arr.length = maxItems;
+    DB.set(key, arr);
+    return arr;
+  }
+};
+
+// ===================================================================
+// ESTADO GLOBAL
+// ===================================================================
+let currentUser = null;
+let selectedType = '';
+let selectedTag = '';
+let selectedColor = '';
+let filterVisible = false;
+let panicTimer = null;
+let panicHeld = false;
+let countdownInterval = null;
+let leafletMap = null;
+let userMarker = null;
+let pendingLocation = null;
+let userLocation = null;
+let reportMap = null;
+let reportMarker = null;
+let reportLocation = null;
+
+// Incidentes fijos del mapa (zona Miraflores/Lima)
+const MAP_INCIDENTS = [
+  { lat:-12.1217, lng:-77.0278, type:'robo', icon:'🔴', color:'red', title:'Robo reportado', time:'Hace 5 min', desc:'Intento de robo al paso en Av. Larco con Schell. Delincuente huyó hacia Parque Kennedy.' },
+  { lat:-12.1253, lng:-77.0328, type:'sospechoso', icon:'🟠', color:'orange', title:'Persona sospechosa', time:'Hace 18 min', desc:'Individuo merodeando vehículos estacionados. Camisa azul, gorra negra. No acercarse.' },
+  { lat:-12.1189, lng:-77.0245, type:'vandalismo', icon:'🟡', color:'orange', title:'Vandalismo reportado', time:'Hace 1h', desc:'Grafitis en fachada de edificio. Cámaras capturaron imágenes.' },
+  { lat:-12.1270, lng:-77.0300, type:'robo', icon:'🔴', color:'red', title:'Robo de celular', time:'Hace 3h', desc:'Robo en paradero de bus. Víctima presentó denuncia en comisaría.' },
+  { lat:-12.1165, lng:-77.0290, type:'sospechoso', icon:'🟠', color:'orange', title:'Mototaxi sin placa', time:'Hace 4h', desc:'Tres individuos en mototaxi sin placa realizando vueltas en zona residencial.' },
+];
+
+// Data de alertas
+const alertsData = [
+  { id:1, type:'Robo / Asalto', color:'red', icon:'🔴', time:'Hace 5 min', dist:'120m', desc:'Intento de robo al paso en Av. Larco con Schell. Delincuente huyó hacia Parque Kennedy.', confirms:3, district:'Miraflores', tag:'robo' },
+  { id:2, type:'Persona sospechosa', color:'orange', icon:'🟠', time:'Hace 18 min', dist:'340m', desc:'Individuo merodeando vehículos estacionados en Jr. San Martín. Camisa azul, gorra negra.', confirms:1, district:'Miraflores', tag:'sospechoso' },
+  { id:3, type:'Vandalismo', color:'yellow', icon:'🟡', time:'Hace 1 h', dist:'500m', desc:'Grafitis en fachada de edificio Av. Benavides. Cámaras del edificio capturaron imágenes.', confirms:5, district:'Surco', tag:'vandalismo' },
+  { id:4, type:'Acoso callejero', color:'purple', icon:'🟣', time:'Hace 2 h', dist:'1.2 km', desc:'Mujer reportó acoso en paradero de la Av. Angamos. Serenazgo fue notificado.', confirms:2, district:'Miraflores', tag:'acoso' },
+  { id:5, type:'Robo / Asalto', color:'red', icon:'🔴', time:'Hace 3 h', dist:'800m', desc:'Robo de celular en el interior del Metropolitano. Cámara interna registró el hecho.', confirms:7, district:'Lima Centro', tag:'robo' },
+];
+
+// Foro inicial (solo si no hay datos guardados aún)
+const FORUM_SEED = [
+  { id:'seed1', author:'María G.', avatar:'MG', text:'¡Vecinos! Hubo un robo anoche en el Jr. Lima. Por favor tengan cuidado.', time:'10/06/2026 22:00', likes:8, type:'msg', loc:null },
+  { id:'seed2', author:'Carlos V.', avatar:'CV', text:'La municipalidad instalará nuevas cámaras en la Av. Principal el próximo lunes.', time:'10/06/2026 15:30', likes:15, type:'msg', loc:null },
+  { id:'seed3', author:'Lucía P.', avatar:'LP', text:'Organizamos una reunión vecinal el sábado 10am en el parque. Tema: seguridad.', time:'09/06/2026 11:00', likes:22, type:'msg', loc:null },
+];
+
+// ===================================================================
+// UTILS
+// ===================================================================
+function formatDateTime(d = new Date()) {
+  return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+}
+function initials(name) {
+  if (!name) return '??';
+  const parts = name.trim().split(' ');
+  return (parts[0][0] + (parts[1] ? parts[1][0] : '')).toUpperCase();
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.remove('hidden');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.add('hidden'), 2800);
+}
+function getCurrentLocation() {
+
+  if (!navigator.geolocation) {
+    alert("GPS no soportado");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+
+    function(position) {
+
+      userLocation = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude
+      };
+
+      initMap();
+
+    },
+
+    function(error) {
+      console.log(error);
+      alert("Permite acceso a ubicación");
+    },
+
+    {
+      enableHighAccuracy: true,
+      timeout: 10000
+    }
+
+  );
+
+}
+// ===================================================================
+// SCREENS
+// ===================================================================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const t = document.getElementById(id);
+  if (t) t.classList.add('active');
+  if (id === 'screen-alerts') renderAlerts(alertsData);
+  if (id === 'screen-community') renderForum();
+  if (id === 'screen-home') {
+    setTimeout(() => initMap(), 100);
+    updateHomeUI();
+  }
+  if (id === 'screen-report') {
+    setTimeout(() => initReportMap(), 100);
+  }
+  if (id === 'screen-profile') updateProfileUI();
+  if (id === 'screen-admin') renderAdminPanel();
+}
+
+// ===================================================================
+// AUTH
+// ===================================================================
+function switchAuthTab(tab) {
+  document.getElementById('auth-login').style.display = tab === 'login' ? '' : 'none';
+  document.getElementById('auth-register').style.display = tab === 'register' ? '' : 'none';
+  document.getElementById('tab-login-btn').classList.toggle('active', tab === 'login');
+  document.getElementById('tab-reg-btn').classList.toggle('active', tab === 'register');
+}
+
+function login() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value.trim();
+  if (!email || !pass) { showToast('⚠️ Completa todos los campos'); return; }
+
+  const users = DB.get('users', {});
+  const user = users[email];
+  if (!user) { showToast('❌ No existe una cuenta con ese correo'); return; }
+  if (user.pass !== pass) { showToast('❌ Contraseña incorrecta'); return; }
+
+  currentUser = user;
+  DB.set('currentUser', user);
+  showToast(`✅ Bienvenido, ${user.name.split(' ')[0]}!`);
+  setTimeout(() => {
+
+  if (user.role === 'admin') {
+    showScreen('screen-admin');
+  } else {
+    showScreen('screen-home');
+    getCurrentLocation();
+    startLocationTracking();
+  }
+}, 700);
+}
+
+function register() {
+  const name = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const pass = document.getElementById('reg-pass').value.trim();
+  const district = document.getElementById('reg-district').value;
+  const phone = document.getElementById('reg-phone').value.trim();
+
+  if (!name || !email || !pass || !district || !phone) { showToast('⚠️ Completa todos los campos'); return; }
+  if (pass.length < 6) { showToast('⚠️ La contraseña debe tener mínimo 6 caracteres'); return; }
+  if (!email.includes('@')) { showToast('⚠️ Correo inválido'); return; }
+
+  const users = DB.get('users', {});
+  if (users[email]) { showToast('⚠️ Ya existe una cuenta con ese correo'); return; }
+
+  const user = { name, email, pass, district, phone, role: 'user', created: formatDateTime() };
+  users[email] = user;
+  DB.set('users', users);
+  currentUser = user;
+  DB.set('currentUser', user);
+
+  showToast(`✅ ¡Cuenta creada! Bienvenido, ${name.split(' ')[0]}`);
+ setTimeout(() => {
+
+  showScreen('screen-home');
+  getCurrentLocation();
+  startLocationTracking();
+// AQUII
+ 
+}, 700);
+
+
+
+}
+function startLocationTracking() {
+
+  if (!navigator.geolocation) return;
+
+  navigator.geolocation.watchPosition(
+
+    function(position) {
+
+      userLocation = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude
+      };
+
+      if (userMarker) {
+        userMarker.setLatLng([
+          userLocation.lat,
+          userLocation.lng
+        ]);
+      }
+
+    },
+
+    function(error) {
+      console.log(error);
+    },
+
+    {
+      enableHighAccuracy: true
+    }
+
+  );
+
+}
+function logout() {
+  currentUser = null;
+  DB.set('currentUser', null);
+  showScreen('screen-login');
+}
+
+function updateHomeUI() {
+  if (!currentUser) return;
+  const firstName = currentUser.name.split(' ')[0];
+  document.getElementById('home-greeting').textContent = `Hola, ${firstName} 👋`;
+  document.getElementById('home-loc').textContent = `📍 ${currentUser.district}, Lima`;
+  document.getElementById('home-avatar').textContent = initials(currentUser.name);
+}
+
+function updateProfileUI() {
+  if (!currentUser) return;
+  document.getElementById('profile-avatar-disp').textContent = initials(currentUser.name);
+  document.getElementById('profile-name-disp').textContent = currentUser.name;
+  document.getElementById('profile-district-disp').textContent = `📍 ${currentUser.district}, Lima`;
+  const reports = DB.get('reports', []).filter(r => r.author === currentUser.email);
+  document.getElementById('p-stat-reports').textContent = reports.length;
+}
+
+// ===================================================================
+// MAP
+// ===================================================================
+
+let mapInitialized = false;
+
+function initMap() {
+
+  if (!userLocation) return;
+
+  if (leafletMap) {
+    leafletMap.remove();
+  }
+
+  leafletMap = L.map('leaflet-map', {
+    zoomControl: true
+  }).setView(
+    [userLocation.lat, userLocation.lng],
+    16
+  );
+
+  // MAPA BASE
+  L.tileLayer(
+    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    {
+      attribution: '© OpenStreetMap',
+      maxZoom: 19
+    }
+  ).addTo(leafletMap);
+
+  // MI UBICACIÓN
+  userMarker = L.marker([
+    userLocation.lat,
+    userLocation.lng
+  ])
+  .addTo(leafletMap)
+  .bindPopup('📍 Mi ubicación actual');
+
+  renderReportsOnMap();
+}
+
+function renderReportsOnMap() {
+  if (!leafletMap) return;
+  const reports = DB.get('reports', []);
+  reports.forEach(r => {
+    if (!r.lat) return;
+    const color = r.color === 'red' ? '#e74c3c' : r.color === 'orange' ? '#f39c12' : '#9b59b6';
+    const icon = L.divIcon({
+      html: `<div style="width:30px;height:30px;border-radius:50%;border:2px solid white;display:flex;align-items:center;justify-content:center;font-size:13px;background:${color};box-shadow:0 3px 8px rgba(0,0,0,0.4)">📋</div>`,
+      className: '', iconSize:[30,30], iconAnchor:[15,15]
+    });
+    const m = L.marker([r.lat, r.lng], { icon });
+    m.addTo(leafletMap);
+    m.on('click', () => showIncident({ title: r.type, time: r.time, desc: r.desc, icon:'📋', district: r.district }));
+  });
+}
+
+function showIncident(inc) {
+  document.getElementById('incident-icon').textContent = inc.icon || '🔴';
+  document.getElementById('incident-title').textContent = inc.title;
+  document.getElementById('incident-time').textContent = inc.time || '';
+  document.getElementById('incident-desc').textContent = inc.district ? `${inc.desc} — 📍 ${inc.district}` : inc.desc;
+  document.getElementById('incident-panel').classList.remove('hidden');
+}
+function closeIncident() { document.getElementById('incident-panel').classList.add('hidden'); }
+function confirmIncident() { showToast('✅ Alerta confirmada. Gracias.'); closeIncident(); }
+
+// ===================================================================
+// MINI-MAPA: elegir punto exacto del reporte (avenida cercana)
+// ===================================================================
+function initReportMap() {
+
+  // Punto de partida: mi ubicación GPS, o un punto por defecto en Miraflores
+  const center = userLocation || { lat: -12.1219, lng: -77.0297 };
+  reportLocation = { lat: center.lat, lng: center.lng };
+
+  if (reportMap) {
+    reportMap.remove();
+    reportMap = null;
+  }
+
+  reportMap = L.map('report-map', { zoomControl: true }).setView(
+    [center.lat, center.lng],
+    17
+  );
+
+  L.tileLayer(
+    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    {
+      attribution: '© OpenStreetMap',
+      maxZoom: 19
+    }
+  ).addTo(reportMap);
+
+  reportMarker = L.marker([center.lat, center.lng], { draggable: true }).addTo(reportMap);
+
+  reportMarker.on('dragend', () => {
+    const pos = reportMarker.getLatLng();
+    reportLocation = { lat: pos.lat, lng: pos.lng };
+    previewReportAddress();
+  });
+
+  reportMap.on('click', (e) => {
+    reportMarker.setLatLng(e.latlng);
+    reportLocation = { lat: e.latlng.lat, lng: e.latlng.lng };
+    previewReportAddress();
+  });
+
+  previewReportAddress();
+}
+
+async function previewReportAddress() {
+  const hint = document.getElementById('report-map-hint');
+  if (!hint || !reportLocation) return;
+  hint.textContent = '📍 Buscando dirección...';
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${reportLocation.lat}&lon=${reportLocation.lng}`
+    );
+    const data = await res.json();
+    hint.textContent = data.display_name ? `📍 ${data.display_name}` : '📍 Ubicación seleccionada';
+  } catch (err) {
+    console.log(err);
+    hint.textContent = '📍 Ubicación seleccionada en el mapa';
+  }
+}
+
+function resetReportPin() {
+  if (!userLocation) { showToast('⚠️ No se pudo obtener tu ubicación GPS'); return; }
+  reportLocation = { lat: userLocation.lat, lng: userLocation.lng };
+  if (reportMarker) reportMarker.setLatLng([userLocation.lat, userLocation.lng]);
+  if (reportMap) reportMap.setView([userLocation.lat, userLocation.lng], 17);
+  previewReportAddress();
+}
+
+// ===================================================================
+// ALERTS
+// ===================================================================
+function renderAlerts(data) {
+  const list = document.getElementById('alerts-list');
+  list.innerHTML = '';
+  // Reportes guardados primero
+  const saved = DB.get('reports', []);
+  const all = [
+    ...saved.map(r => ({ id: r.id, type: r.type, color: r.color||'red', icon:'📋', time: r.time, dist:'--', desc: r.desc, confirms:0, district: r.district||'Lima', tag: r.tag||'otro', saved:true })),
+    ...data
+  ];
+  all.forEach(a => {
+    const card = document.createElement('div');
+    card.className = `alert-card ${a.color}`;
+    card.innerHTML = `
+      <div class="alert-top">
+        <span>${a.icon}</span>
+        <span class="alert-type">${a.type}</span>
+        <span class="alert-time">${a.time}</span>
+      </div>
+      <div class="alert-desc">${a.desc}</div>
+      <div class="alert-foot">
+        <button
+style="
+margin-top:10px;
+width:100%;
+padding:8px;
+border:none;
+border-radius:8px;
+background:#e74c3c;
+color:white;
+cursor:pointer;"
+onclick="showAlertOnMap('${a.id}')">
+
+📍 Ver en mapa
+
+</button>
+        <span class="alert-meta">📍 ${a.district}</span>
+        ${a.dist !== '--' ? `<span class="alert-meta">📏 ${a.dist}</span>` : ''}
+        <span class="alert-meta">✅ ${a.confirms} confirmaciones</span>
+        ${a.saved ? '<span class="alert-meta" style="color:#27ae60">💾 Guardado</span>' : ''}
+      </div>`;
+    list.appendChild(card);
+  });
+  document.getElementById('stat-alerts').textContent = all.length;
+}
+
+function showAlertOnMap(id) {
+
+  const reports = DB.get('reports', []);
+
+  const alert = reports.find(r => r.id == id);
+
+  if (!alert) return;
+
+  showScreen('screen-home');
+//AD
+  setTimeout(() => {
+
+    leafletMap.setView(
+      [alert.lat, alert.lng],
+      18
+    );
+
+  }, 300);
+}
+function toggleFilter() {
+  filterVisible = !filterVisible;
+  document.getElementById('filter-bar').style.display = filterVisible ? 'flex' : 'none';
+}
+function filterAlerts(tag, el) {
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  const filtered = tag === 'all' ? alertsData : alertsData.filter(a => a.tag === tag);
+  renderAlerts(filtered);
+}
+
+// ===================================================================
+// REPORT — guardado persistente
+// ===================================================================
+function selectType(el, type, tag, color) {
+  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedType = type; selectedTag = tag; selectedColor = color;
+}
+
+async function submitReport() {
+  if (!selectedType) { showToast('⚠️ Selecciona un tipo de incidente'); return; }
+  const desc = document.getElementById('report-desc').value.trim();
+  const addr = document.getElementById('report-addr').value.trim();
+  if (!desc || !addr) { showToast('⚠️ Completa la descripción y dirección'); return; }
+  const anon = document.getElementById('anon-check').checked;
+  const author = anon ? 'Anónimo' : (currentUser ? currentUser.name : 'Vecino');
+
+  let fullAddress = addr;
+
+  if (reportLocation) {
+    try {
+
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${reportLocation.lat}&lon=${reportLocation.lng}`
+      );
+
+      const data = await res.json();
+
+      if (data.display_name) {
+        fullAddress = data.display_name;
+      }
+
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  const report = {
+    id: 'r' + Date.now(),
+    type: selectedType,
+    tag: selectedTag,
+    color: selectedColor,
+    desc, district: fullAddress,
+    author: currentUser ? currentUser.email : 'anon',
+    authorName: author,
+    time: formatDateTime(),
+    confirms: 0,
+    lat: reportLocation ? reportLocation.lat : (userLocation ? userLocation.lat : null),
+    lng: reportLocation ? reportLocation.lng : (userLocation ? userLocation.lng : null)
+  };
+
+  DB.push('reports', report);
+
+  if (leafletMap && report.lat && report.lng) {
+
+    leafletMap.setView(
+      [report.lat, report.lng],
+      18
+    );
+
+  }
+
+  // También lo agrega al foro como post de tipo reporte
+  const forumPost = {
+    id: 'fr' + Date.now(),
+    author: author,
+    avatar: anon ? '??' : initials(currentUser?.name || 'V'),
+    text: `🚨 [Reporte] ${selectedType}: ${desc} — ${addr}`,
+    time: formatDateTime(),
+    likes: 0,
+    type: 'report',
+    loc: null
+  };
+  DB.push('forum', forumPost);
+
+  showToast(anon ? '📤 Reporte anónimo guardado' : '📤 Reporte guardado en alertas y comunidad');
+
+  // Reset form
+  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('report-desc').value = '';
+  document.getElementById('report-addr').value = '';
+  selectedType = ''; selectedTag = ''; selectedColor = '';
+
+  setTimeout(() => showScreen('screen-alerts'), 1000);
+}
+
+// ===================================================================
+// SOS — más dinámico
+// ===================================================================
+let sosCountdown = 3;
+function startPanic(e) {
+  if (e) e.preventDefault();
+  panicHeld = true;
+  sosCountdown = 3;
+  document.getElementById('panic-counting').style.display = 'block';
+  document.getElementById('sos-count').textContent = sosCountdown;
+  document.getElementById('panic-main').style.transform = 'scale(0.93)';
+
+  countdownInterval = setInterval(() => {
+    sosCountdown--;
+    document.getElementById('sos-count').textContent = sosCountdown;
+    if (sosCountdown <= 0) {
+      clearInterval(countdownInterval);
+      if (panicHeld) activateSOS();
+    }
+  }, 1000);
+}
+function cancelPanic() {
+  panicHeld = false;
+  clearInterval(countdownInterval);
+  document.getElementById('panic-counting').style.display = 'none';
+  document.getElementById('panic-main').style.transform = '';
+}
+function activateSOS() {
+  document.getElementById('panic-wrap').style.display = 'none';
+  document.getElementById('panic-counting').style.display = 'none';
+  const sent = document.getElementById('panic-sent');
+  sent.classList.add('show');
+
+  // Vibración si disponible
+  if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 500]);
+
+  // SOS guardado en DB
+  const sosEvent = {
+    id: 'sos' + Date.now(),
+    user: currentUser ? currentUser.name : 'Vecino',
+    time: formatDateTime(),
+    lat: -12.1213, lng: -77.0278
+  };
+  DB.push('sos_events', sosEvent);
+
+  // También aparece en alertas y foro
+  const forumPost = {
+    id: 'fsos' + Date.now(),
+    author: currentUser ? currentUser.name : 'Vecino',
+    avatar: currentUser ? initials(currentUser.name) : '🆘',
+    text: `🆘 ALERTA SOS activada — Se solicitó ayuda de emergencia. Autoridades notificadas.`,
+    time: formatDateTime(),
+    likes: 0,
+    type: 'report',
+    loc: null
+  };
+  DB.push('forum', forumPost);
+
+  const sosAlert = {
+    id: 'sa' + Date.now(),
+    type: '🆘 Alerta SOS',
+    color:'red', icon:'🆘',
+    time: formatDateTime(),
+    dist:'--', desc: `Vecino activó botón SOS. Serenazgo notificado.`,
+    confirms:0, district: currentUser?.district || 'Miraflores',
+    tag:'robo', saved:true
+  };
+  DB.push('reports', sosAlert);
+
+  // Progresión tracking
+  setTimeout(() => { document.getElementById('tdot1').classList.add('active'); if(navigator.vibrate) navigator.vibrate(100); }, 3000);
+  setTimeout(() => { document.getElementById('tdot2').classList.add('active'); if(navigator.vibrate) navigator.vibrate(200); }, 7000);
+}
+function cancelSOS() {
+  document.getElementById('panic-wrap').style.display = 'flex';
+  document.getElementById('panic-sent').classList.remove('show');
+  ['tdot1','tdot2'].forEach(id => document.getElementById(id).classList.remove('active'));
+  showToast('🚫 Alerta cancelada');
+}
+
+// ===================================================================
+// COMMUNITY / FORO — persistente
+// ===================================================================
+function renderForum() {
+  const list = document.getElementById('forum-list');
+  list.innerHTML = '';
+
+  let posts = DB.get('forum', null);
+  if (!posts) {
+    // Primera vez: seed data
+    DB.set('forum', FORUM_SEED);
+    posts = FORUM_SEED;
+  }
+
+  const reports = DB.get('reports', []);
+  document.getElementById('stat-reportes').textContent = reports.length;
+  document.getElementById('stat-vec2').textContent = 47 + Math.floor(reports.length / 2);
+
+  if (posts.length === 0) {
+    list.innerHTML = '<p style="text-align:center;color:var(--text2);font-size:14px;padding:20px">Sé el primero en publicar algo 👋</p>';
+    return;
+  }
+
+  posts.forEach((p, idx) => {
+    const el = document.createElement('div');
+    el.className = 'forum-post';
+    const badge = p.type === 'report' ? '<span class="post-badge report">🚨 Reporte</span>' : p.type === 'loc' ? '<span class="post-badge loc">📍 Ubicación</span>' : '<span class="post-badge msg">💬 Mensaje</span>';
+    const locTag = p.loc ? `<div class="post-loc-tag" onclick="showLocOnMap(${p.loc.lat},${p.loc.lng})">📍 ${p.loc.label || 'Ver ubicación en mapa'}</div>` : '';
+    el.innerHTML = `
+      <div class="post-author">
+        <div class="post-avatar">${p.avatar}</div>
+        ${p.author}
+        ${badge}
+      </div>
+      ${locTag}
+      <div class="post-text">${p.text}</div>
+      <div class="post-meta">
+        <span class="post-meta-date">🕐 ${p.time}</span>
+        <button class="like-btn" onclick="likePost(${idx}, this)">👍 ${p.likes}</button>
+      </div>`;
+    list.appendChild(el);
+  });
+}
+
+function likePost(idx, btn) {
+  const posts = DB.get('forum', []);
+  if (posts[idx]) {
+    posts[idx].likes++;
+    DB.set('forum', posts);
+    btn.textContent = `👍 ${posts[idx].likes}`;
+  }
+}
+
+function addPost() {
+  const text = document.getElementById('new-post').value.trim();
+  if (!text) { showToast('⚠️ Escribe algo primero'); return; }
+
+  const post = {
+    id: 'p' + Date.now(),
+    author: currentUser ? currentUser.name : 'Vecino',
+    avatar: currentUser ? initials(currentUser.name) : 'V',
+    text,
+    time: formatDateTime(),
+    likes: 0,
+    type: 'msg',
+    loc: pendingLocation || null
+  };
+
+  DB.push('forum', post);
+  pendingLocation = null;
+  document.getElementById('new-post').value = '';
+  showToast('✅ Publicado y guardado');
+  renderForum();
+}
+
+// ===================================================================
+// COMPARTIR UBICACIÓN
+// ===================================================================
+function shareLocation() {
+  if (!navigator.geolocation) {
+    // Simular ubicación en Miraflores
+    pendingLocation = { lat:-12.1213, lng:-77.0278, label:'Miraflores, Lima (aprox.)' };
+    showToast('📍 Ubicación de Miraflores añadida al post');
+    return;
+  }
+  showToast('📡 Obteniendo ubicación...');
+  navigator.geolocation.getCurrentPosition(pos => {
+    pendingLocation = {
+      lat: pos.coords.latitude,
+      lng: pos.coords.longitude,
+      label: `${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`
+    };
+    document.getElementById('modal-loc-text').textContent = `Tu ubicación: ${pendingLocation.label}\n\nEsta ubicación se compartirá con tu próxima publicación en el foro.`;
+    document.getElementById('loc-modal').classList.remove('hidden');
+  }, () => {
+    // Fallback con ubicación simulada
+    pendingLocation = { lat:-12.1213, lng:-77.0278, label:'Miraflores, Lima (aprox.)' };
+    document.getElementById('modal-loc-text').textContent = 'Ubicación aproximada: Miraflores, Lima\n\nEsta ubicación se compartirá con tu próxima publicación.';
+    document.getElementById('loc-modal').classList.remove('hidden');
+  });
+}
+function confirmShareLocation() {
+  document.getElementById('loc-modal').classList.add('hidden');
+  showToast('📍 Ubicación lista para publicar');
+}
+function closeLocModal(e) {
+  if (e.target === document.getElementById('loc-modal')) document.getElementById('loc-modal').classList.add('hidden');
+}
+function showLocOnMap(lat, lng) {
+  showScreen('screen-home');
+  setTimeout(() => {
+    if (leafletMap) leafletMap.setView([lat, lng], 16);
+  }, 200);
+}
+
+// ===================================================================
+// PANEL DE ADMINISTRADOR
+// ===================================================================
+function switchAdminTab(tab) {
+  ['reports', 'forum', 'users', 'sos'].forEach(t => {
+    document.getElementById(`admin-panel-${t}`).style.display = t === tab ? '' : 'none';
+    document.getElementById(`admin-tab-${t}-btn`).classList.toggle('active', t === tab);
+  });
+}
+
+function renderAdminPanel() {
+  if (!currentUser || currentUser.role !== 'admin') { showScreen('screen-login'); return; }
+  renderAdminReports();
+  renderAdminForum();
+  renderAdminUsers();
+  renderAdminSOS();
+}
+
+function renderAdminReports() {
+  const list = document.getElementById('admin-reports-list');
+  const reports = DB.get('reports', []);
+  document.getElementById('admin-stat-reports').textContent = reports.length;
+
+  if (!reports.length) { list.innerHTML = '<div class="admin-empty">No hay reportes guardados.</div>'; return; }
+
+  list.innerHTML = reports.map(r => `
+    <div class="admin-item">
+      <div class="admin-item-top">
+        <div>
+          <div class="admin-item-title">${r.icon || '📋'} ${r.type}</div>
+          <div class="admin-item-meta">${r.authorName || r.author || 'Vecino'} · ${r.time || ''}</div>
+        </div>
+        <button class="btn-del" onclick="deleteReportAdmin('${r.id}')">🗑️ Quitar</button>
+      </div>
+      <div class="admin-item-desc">${r.desc || ''}</div>
+      <div class="admin-item-meta">📍 ${r.district || 'Sin dirección'}</div>
+    </div>
+  `).join('');
+}
+
+function deleteReportAdmin(id) {
+  let reports = DB.get('reports', []);
+  reports = reports.filter(r => r.id !== id);
+  DB.set('reports', reports);
+  showToast('🗑️ Reporte eliminado');
+  renderAdminReports();
+}
+
+function renderAdminForum() {
+  const list = document.getElementById('admin-forum-list');
+  const posts = DB.get('forum', []);
+  document.getElementById('admin-stat-forum').textContent = posts.length;
+
+  if (!posts.length) { list.innerHTML = '<div class="admin-empty">No hay publicaciones en el foro.</div>'; return; }
+
+  list.innerHTML = posts.map(p => `
+    <div class="admin-item">
+      <div class="admin-item-top">
+        <div>
+          <div class="admin-item-title">${p.avatar || '👤'} ${p.author || 'Vecino'}</div>
+          <div class="admin-item-meta">${p.time || ''}</div>
+        </div>
+        <button class="btn-del" onclick="deleteForumPostAdmin('${p.id}')">🗑️ Quitar</button>
+      </div>
+      <div class="admin-item-desc">${p.text || ''}</div>
+    </div>
+  `).join('');
+}
+
+function deleteForumPostAdmin(id) {
+  let posts = DB.get('forum', []);
+  posts = posts.filter(p => p.id !== id);
+  DB.set('forum', posts);
+  showToast('🗑️ Publicación eliminada');
+  renderAdminForum();
+}
+
+function renderAdminUsers() {
+  const list = document.getElementById('admin-users-list');
+  const users = DB.get('users', {});
+  const entries = Object.values(users);
+  document.getElementById('admin-stat-users').textContent = entries.length;
+
+  if (!entries.length) { list.innerHTML = '<div class="admin-empty">No hay usuarios registrados.</div>'; return; }
+
+  list.innerHTML = entries.map(u => `
+    <div class="admin-item">
+      <div class="admin-item-top">
+        <div>
+          <div class="admin-item-title">${initials(u.name)} ${u.name} ${u.role === 'admin' ? '<span class="admin-role-tag">ADMIN</span>' : ''}</div>
+          <div class="admin-item-meta">${u.email} · ${u.district || ''}</div>
+        </div>
+        ${u.role === 'admin' ? '' : `<button class="btn-del" onclick="deleteUserAdmin('${u.email}')">🗑️ Quitar</button>`}
+      </div>
+      <div class="admin-item-meta">📞 ${u.phone || '--'} · Desde ${u.created || '--'}</div>
+    </div>
+  `).join('');
+}
+
+function deleteUserAdmin(email) {
+  const users = DB.get('users', {});
+  delete users[email];
+  DB.set('users', users);
+  showToast('🗑️ Usuario eliminado');
+  renderAdminUsers();
+}
+
+function renderAdminSOS() {
+  const list = document.getElementById('admin-sos-list');
+  const events = DB.get('sos_events', []);
+  document.getElementById('admin-stat-sos').textContent = events.length;
+
+  if (!events.length) { list.innerHTML = '<div class="admin-empty">No hay alertas SOS registradas.</div>'; return; }
+
+  list.innerHTML = events.map(s => `
+    <div class="admin-item">
+      <div class="admin-item-top">
+        <div>
+          <div class="admin-item-title">🆘 ${s.user || 'Vecino'}</div>
+          <div class="admin-item-meta">${s.time || ''}</div>
+        </div>
+        <button class="btn-del" onclick="deleteSOSAdmin('${s.id}')">🗑️ Quitar</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function deleteSOSAdmin(id) {
+  let events = DB.get('sos_events', []);
+  events = events.filter(s => s.id !== id);
+  DB.set('sos_events', events);
+  showToast('🗑️ Alerta SOS eliminada');
+  renderAdminSOS();
+}
+
+// ===================================================================
+// INIT
+// ===================================================================
+window.addEventListener('load', () => {
+  // Inicializar foro si vacío
+  if (!DB.get('forum')) DB.set('forum', FORUM_SEED);
+
+  // Crear cuenta de administrador de prueba si no existe
+  const users = DB.get('users', {});
+  if (!users['admin@alertavec.com']) {
+    users['admin@alertavec.com'] = {
+      name: 'Administrador',
+      email: 'admin@alertavec.com',
+      pass: 'admin123',
+      role: 'admin',
+      district: 'Miraflores',
+      phone: '999999999',
+      created: formatDateTime()
+    };
+    DB.set('users', users);
+  }
+
+  // Auto-login si hay sesión guardada
+  const saved = DB.get('currentUser');
+  if (saved) {
+    currentUser = saved;
+  }
+
+  document.getElementById('loading-overlay').classList.add('hidden');
+  showScreen('screen-login');
+});
+</script>
+<script>
+function toggleMapSize() {
+    const map = document.querySelector('.map-container');
+    const btn = document.getElementById('map-toggle-btn');
+
+    map.classList.toggle('fullscreen');
+
+    if (map.classList.contains('fullscreen')) {
+        btn.innerHTML = '🗕';
+    } else {
+        btn.innerHTML = '⛶';
+    }
+}
+
+</script>
+</body>
+</html>

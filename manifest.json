@@ -1,0 +1,27 @@
+{
+  "name": "AlertaVecinal",
+  "short_name": "AlertaVec",
+  "description": "App de seguridad vecinal para reportar y recibir alertas en tu barrio",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#1a1a2e",
+  "theme_color": "#e74c3c",
+  "orientation": "portrait",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["utilities", "lifestyle"],
+  "screenshots": []
+}
