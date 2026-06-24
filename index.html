@@ -84,8 +84,10 @@
     .notif-dot { position:absolute;top:6px;right:6px;width:8px;height:8px;background:var(--red);border-radius:50%;border:2px solid var(--bg2); }
 
     /* ===== MAP ===== */
-    .map-container { flex:1; position:relative; overflow:hidden; }
-    #leaflet-map { width:100%; height:100%; z-index:1; }
+    .map-container { flex:1; position:relative; overflow:hidden; min-height:0; }
+    #leaflet-map { width:100%; height:100%; min-height:300px; z-index:1; background:#1a2035; }
+    .map-locate-btn { position:absolute; top:70px; right:12px; z-index:10; background:var(--card); border:1px solid var(--border); border-radius:50%; width:42px; height:42px; display:flex; align-items:center; justify-content:center; font-size:20px; cursor:pointer; box-shadow:0 3px 10px rgba(0,0,0,0.5); }
+    .map-locate-btn:active { background:var(--red); border-color:var(--red); }
     .map-legend { position:absolute; bottom:80px; left:12px; background:rgba(15,17,23,0.85); backdrop-filter:blur(10px); border:1px solid var(--border); border-radius:12px; padding:10px 14px; z-index:5; display:flex; flex-direction:column; gap:6px; }
     .legend-item { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text2); }
     .dot { width:10px;height:10px;border-radius:50%;flex-shrink:0; }
@@ -392,6 +394,7 @@
   </div>
   <div class="map-container">
     <div id="leaflet-map"></div>
+    <button class="map-locate-btn" onclick="centerMyLocation()" title="Mi ubicación">📍</button>
     <div class="map-legend">
       <div class="legend-item"><span class="dot red"></span> Alto riesgo</div>
       <div class="legend-item"><span class="dot orange"></span> Riesgo medio</div>
@@ -821,19 +824,40 @@ function useIPLocation() {
     .then(data => {
       if (data.latitude && data.longitude) {
         userLocation = { lat: parseFloat(data.latitude), lng: parseFloat(data.longitude) };
-        showToast('📍 Ubicación aproximada por IP');
+        showToast('📍 Ubicación aproximada — pulsa 📍 para centrar cuando cargue el GPS');
       } else {
-        // Último fallback: centro de Lima
         userLocation = { lat: -12.0464, lng: -77.0428 };
-        showToast('📍 Ubicación predeterminada: Lima');
+        showToast('📍 Usando Lima como punto de inicio');
       }
       initMap();
+      // Seguir intentando GPS en background para dar ubicación exacta
+      tryGPSBackground();
     })
     .catch(() => {
       userLocation = { lat: -12.0464, lng: -77.0428 };
-      showToast('📍 Ubicación predeterminada: Lima');
+      showToast('📍 Sin conexión de ubicación — usando Lima');
       initMap();
+      tryGPSBackground();
     });
+}
+
+// Intenta obtener GPS real en background y actualiza el mapa cuando lo logra
+function tryGPSBackground() {
+  if (!navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(
+    function(position) {
+      const newLoc = { lat: position.coords.latitude, lng: position.coords.longitude };
+      userLocation = newLoc;
+      // Actualizar marcador de posición sin destruir el mapa
+      if (userMarker && leafletMap) {
+        userMarker.setLatLng([newLoc.lat, newLoc.lng]);
+        leafletMap.setView([newLoc.lat, newLoc.lng], 16);
+        showToast('✅ Ubicación GPS exacta obtenida');
+      }
+    },
+    function() { /* silencioso, el mapa ya funciona con IP */ },
+    { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
+  );
 }
 
 function startLocationTracking() {
@@ -1016,6 +1040,8 @@ function updateProfileUI() {
 
 let mapInitialized = false;
 
+let reportMarkers = [];  // Array global para limpiar marcadores de reportes
+
 function initMap() {
 
   if (!userLocation) return;
@@ -1023,18 +1049,20 @@ function initMap() {
   if (leafletMap) {
     leafletMap.remove();
     leafletMap = null;
+    reportMarkers = [];
   }
 
   leafletMap = L.map('leaflet-map', {
-    zoomControl: true
+    zoomControl: true,
+    attributionControl: true
   }).setView(
     [userLocation.lat, userLocation.lng],
     16
   );
 
-  // MAPA BASE
+  // MAPA BASE — CartoDB Voyager (calles visibles con estilo neutro)
   L.tileLayer(
-    'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+    'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
     {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
       subdomains: 'abcd',
@@ -1042,33 +1070,53 @@ function initMap() {
     }
   ).addTo(leafletMap);
 
-  // MI UBICACIÓN
-  userMarker = L.marker([
-    userLocation.lat,
-    userLocation.lng
-  ])
-  .addTo(leafletMap)
-  .bindPopup('📍 Mi ubicación actual');
+  // MI UBICACIÓN — marcador azul destacado
+  const myIcon = L.divIcon({
+    html: `<div style="width:18px;height:18px;border-radius:50%;background:#2e75b6;border:3px solid white;box-shadow:0 0 0 4px rgba(46,117,182,0.35)"></div>`,
+    className: '', iconSize:[18,18], iconAnchor:[9,9]
+  });
+  userMarker = L.marker([userLocation.lat, userLocation.lng], { icon: myIcon })
+    .addTo(leafletMap)
+    .bindPopup('<b>📍 Mi ubicación actual</b>');
 
   renderReportsOnMap();
 
-  // Forzar recálculo de tamaño (evita el mapa negro en PWA)
-  setTimeout(() => { if (leafletMap) leafletMap.invalidateSize(true); }, 300);
+  // Forzar recálculo de tamaño varias veces (resuelve el negro definitivamente)
+  [200, 500, 1000].forEach(ms => {
+    setTimeout(() => { if (leafletMap) leafletMap.invalidateSize(true); }, ms);
+  });
+}
+
+// Centrar mapa en mi ubicación actual (botón 📍)
+function centerMyLocation() {
+  if (!leafletMap) return;
+  if (userLocation) {
+    leafletMap.setView([userLocation.lat, userLocation.lng], 17);
+    if (userMarker) userMarker.openPopup();
+    return;
+  }
+  showToast('📡 Obteniendo ubicación...');
+  getCurrentLocation();
 }
 
 function renderReportsOnMap() {
   if (!leafletMap) return;
+
+  // Limpiar marcadores de reportes anteriores
+  reportMarkers.forEach(m => m.remove());
+  reportMarkers = [];
+
   const reports = DB.get('reports', []);
   reports.forEach(r => {
-    if (!r.lat) return;
+    if (!r.lat || !r.lng) return;
     const color = r.color === 'red' ? '#e74c3c' : r.color === 'orange' ? '#f39c12' : '#9b59b6';
     const icon = L.divIcon({
-      html: `<div style="width:30px;height:30px;border-radius:50%;border:2px solid white;display:flex;align-items:center;justify-content:center;font-size:13px;background:${color};box-shadow:0 3px 8px rgba(0,0,0,0.4)">📋</div>`,
-      className: '', iconSize:[30,30], iconAnchor:[15,15]
+      html: `<div style="width:32px;height:32px;border-radius:50%;border:2px solid white;display:flex;align-items:center;justify-content:center;font-size:14px;background:${color};box-shadow:0 3px 10px rgba(0,0,0,0.5)">📋</div>`,
+      className: '', iconSize:[32,32], iconAnchor:[16,16]
     });
-    const m = L.marker([r.lat, r.lng], { icon });
-    m.addTo(leafletMap);
+    const m = L.marker([r.lat, r.lng], { icon }).addTo(leafletMap);
     m.on('click', () => showIncident({ title: r.type, time: r.time, desc: r.desc, icon:'📋', district: r.district }));
+    reportMarkers.push(m);
   });
 }
 
@@ -1341,7 +1389,7 @@ async function submitReport() {
   };
   DB.push('forum', forumPost);
 
-  showToast(anon ? '📤 Reporte anónimo guardado' : '📤 Reporte guardado en alertas y comunidad');
+  showToast(anon ? '📤 Reporte anónimo guardado' : '📤 Reporte guardado — visible en el mapa');
 
   // Reset form
   document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected'));
@@ -1349,7 +1397,14 @@ async function submitReport() {
   document.getElementById('report-addr').value = '';
   selectedType = ''; selectedTag = ''; selectedColor = '';
 
-  setTimeout(() => showScreen('screen-alerts'), 1000);
+  // Ir al mapa y mostrar el marcador del reporte recién creado
+  setTimeout(() => {
+    showScreen('screen-home');
+    if (leafletMap && report.lat && report.lng) {
+      renderReportsOnMap();            // redibujar todos los marcadores
+      leafletMap.setView([report.lat, report.lng], 17);
+    }
+  }, 800);
 }
 
 // ===================================================================
