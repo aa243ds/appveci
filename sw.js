@@ -1,4 +1,4 @@
-const CACHE_NAME = 'alertavecinal-v3';
+const CACHE_NAME = 'alertavecinal-v4';
 const ASSETS = [
   './',
   './index.html',
