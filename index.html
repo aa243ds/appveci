@@ -767,39 +767,95 @@ function showToast(msg) {
   clearTimeout(t._timer);
   t._timer = setTimeout(() => t.classList.add('hidden'), 2800);
 }
-function getCurrentLocation() {
+// ============================================================
+// GEOLOCALIZACIÓN ROBUSTA
+// ============================================================
 
+// Ubica al usuario: primero GPS, si falla en 8s usa IP-geolocation
+function getCurrentLocation() {
   if (!navigator.geolocation) {
-    alert("GPS no soportado");
+    useIPLocation();
     return;
   }
 
+  // Intentar con baja precisión primero (más rápido y menos bloqueante en Android)
   navigator.geolocation.getCurrentPosition(
-
     function(position) {
-
       userLocation = {
         lat: position.coords.latitude,
         lng: position.coords.longitude
       };
-
       initMap();
-
     },
-
-    function(error) {
-      console.log(error);
-      alert("Permite acceso a ubicación");
+    function(err) {
+      console.warn('GPS error (intento 1):', err.code, err.message);
+      // Si el permiso fue denegado, usar IP directamente
+      if (err.code === 1) {
+        useIPLocation();
+      } else {
+        // Reintentar sin alta precisión
+        navigator.geolocation.getCurrentPosition(
+          function(position) {
+            userLocation = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            };
+            initMap();
+          },
+          function(err2) {
+            console.warn('GPS error (intento 2):', err2.message);
+            useIPLocation();
+          },
+          { enableHighAccuracy: false, timeout: 12000, maximumAge: 60000 }
+        );
+      }
     },
-
-    {
-      enableHighAccuracy: true,
-      timeout: 10000
-    }
-
+    { enableHighAccuracy: false, timeout: 8000, maximumAge: 30000 }
   );
-
 }
+
+// Fallback: obtener ubicación aproximada por IP (sin pedir permiso GPS)
+function useIPLocation() {
+  fetch('https://ipapi.co/json/')
+    .then(r => r.json())
+    .then(data => {
+      if (data.latitude && data.longitude) {
+        userLocation = { lat: parseFloat(data.latitude), lng: parseFloat(data.longitude) };
+        showToast('📍 Ubicación aproximada por IP');
+      } else {
+        // Último fallback: centro de Lima
+        userLocation = { lat: -12.0464, lng: -77.0428 };
+        showToast('📍 Ubicación predeterminada: Lima');
+      }
+      initMap();
+    })
+    .catch(() => {
+      userLocation = { lat: -12.0464, lng: -77.0428 };
+      showToast('📍 Ubicación predeterminada: Lima');
+      initMap();
+    });
+}
+
+function startLocationTracking() {
+  if (!navigator.geolocation) return;
+
+  navigator.geolocation.watchPosition(
+    function(position) {
+      userLocation = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude
+      };
+      if (userMarker) {
+        userMarker.setLatLng([userLocation.lat, userLocation.lng]);
+      }
+    },
+    function(error) {
+      console.warn('watchPosition error:', error.message);
+    },
+    { enableHighAccuracy: false, timeout: 15000, maximumAge: 10000 }
+  );
+}
+
 // ===================================================================
 // SCREENS
 // ===================================================================
@@ -810,11 +866,22 @@ function showScreen(id) {
   if (id === 'screen-alerts') renderAlerts(alertsData);
   if (id === 'screen-community') renderForum();
   if (id === 'screen-home') {
-    setTimeout(() => initMap(), 100);
     updateHomeUI();
+    setTimeout(() => {
+      if (!leafletMap) {
+        if (userLocation) {
+          initMap();
+        } else {
+          getCurrentLocation();
+        }
+      } else {
+        // Mapa ya existe: sólo corregir tamaño (resuelve pantalla negra)
+        leafletMap.invalidateSize(true);
+      }
+    }, 150);
   }
   if (id === 'screen-report') {
-    setTimeout(() => initReportMap(), 100);
+    setTimeout(() => initReportMap(), 150);
   }
   if (id === 'screen-profile') updateProfileUI();
   if (id === 'screen-admin') renderAdminPanel();
@@ -829,7 +896,6 @@ function switchAuthTab(tab) {
   document.getElementById('tab-login-btn').classList.toggle('active', tab === 'login');
   document.getElementById('tab-reg-btn').classList.toggle('active', tab === 'register');
 }
-
 function login() {
   const email = document.getElementById('login-email').value.trim();
   const pass = document.getElementById('login-pass').value.trim();
@@ -956,6 +1022,7 @@ function initMap() {
 
   if (leafletMap) {
     leafletMap.remove();
+    leafletMap = null;
   }
 
   leafletMap = L.map('leaflet-map', {
@@ -984,6 +1051,9 @@ function initMap() {
   .bindPopup('📍 Mi ubicación actual');
 
   renderReportsOnMap();
+
+  // Forzar recálculo de tamaño (evita el mapa negro en PWA)
+  setTimeout(() => { if (leafletMap) leafletMap.invalidateSize(true); }, 300);
 }
 
 function renderReportsOnMap() {
@@ -1017,44 +1087,81 @@ function confirmIncident() { showToast('✅ Alerta confirmada. Gracias.'); close
 // ===================================================================
 function initReportMap() {
 
-  // Punto de partida: mi ubicación GPS, o un punto por defecto en Miraflores
-  const center = userLocation || { lat: -12.1219, lng: -77.0297 };
-  reportLocation = { lat: center.lat, lng: center.lng };
+  const doInit = (center) => {
+    reportLocation = { lat: center.lat, lng: center.lng };
 
-  if (reportMap) {
-    reportMap.remove();
-    reportMap = null;
-  }
-
-  reportMap = L.map('report-map', { zoomControl: true }).setView(
-    [center.lat, center.lng],
-    17
-  );
-
-  L.tileLayer(
-    'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-    {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
-      subdomains: 'abcd',
-      maxZoom: 20
+    if (reportMap) {
+      reportMap.remove();
+      reportMap = null;
     }
-  ).addTo(reportMap);
 
-  reportMarker = L.marker([center.lat, center.lng], { draggable: true }).addTo(reportMap);
+    reportMap = L.map('report-map', { zoomControl: true }).setView(
+      [center.lat, center.lng],
+      17
+    );
 
-  reportMarker.on('dragend', () => {
-    const pos = reportMarker.getLatLng();
-    reportLocation = { lat: pos.lat, lng: pos.lng };
+    L.tileLayer(
+      'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+      {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
+        subdomains: 'abcd',
+        maxZoom: 20
+      }
+    ).addTo(reportMap);
+
+    reportMarker = L.marker([center.lat, center.lng], { draggable: true }).addTo(reportMap);
+
+    reportMarker.on('dragend', () => {
+      const pos = reportMarker.getLatLng();
+      reportLocation = { lat: pos.lat, lng: pos.lng };
+      previewReportAddress();
+    });
+
+    reportMap.on('click', (e) => {
+      reportMarker.setLatLng(e.latlng);
+      reportLocation = { lat: e.latlng.lat, lng: e.latlng.lng };
+      previewReportAddress();
+    });
+
+    // Forzar recálculo de tamaño
+    setTimeout(() => { if (reportMap) reportMap.invalidateSize(true); }, 300);
+
     previewReportAddress();
-  });
+  };
 
-  reportMap.on('click', (e) => {
-    reportMarker.setLatLng(e.latlng);
-    reportLocation = { lat: e.latlng.lat, lng: e.latlng.lng };
-    previewReportAddress();
-  });
-
-  previewReportAddress();
+  // Si ya tenemos ubicación la usamos directo, si no pedimos GPS / IP
+  if (userLocation) {
+    doInit(userLocation);
+  } else if (navigator.geolocation) {
+    const hint = document.getElementById('report-map-hint');
+    if (hint) hint.textContent = '📍 Obteniendo tu ubicación...';
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        doInit(userLocation);
+      },
+      () => {
+        // Sin GPS: usar IP o Lima por defecto
+        fetch('https://ipapi.co/json/')
+          .then(r => r.json())
+          .then(d => {
+            const center = (d.latitude && d.longitude)
+              ? { lat: parseFloat(d.latitude), lng: parseFloat(d.longitude) }
+              : { lat: -12.0464, lng: -77.0428 };
+            userLocation = center;
+            doInit(center);
+          })
+          .catch(() => {
+            const center = { lat: -12.0464, lng: -77.0428 };
+            userLocation = center;
+            doInit(center);
+          });
+      },
+      { enableHighAccuracy: false, timeout: 6000, maximumAge: 60000 }
+    );
+  } else {
+    doInit({ lat: -12.0464, lng: -77.0428 });
+  }
 }
 
 async function previewReportAddress() {
