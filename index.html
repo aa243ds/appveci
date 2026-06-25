@@ -771,114 +771,110 @@ function showToast(msg) {
   t._timer = setTimeout(() => t.classList.add('hidden'), 2800);
 }
 // ============================================================
-// GEOLOCALIZACIÓN ROBUSTA
+// GEOLOCALIZACIÓN — GPS real primero, sin caché
 // ============================================================
 
-// Ubica al usuario: primero GPS, si falla en 8s usa IP-geolocation
+let _gpsWatchId = null;   // ID del watchPosition activo
+
 function getCurrentLocation() {
+
   if (!navigator.geolocation) {
-    useIPLocation();
+    _fallbackIP();
     return;
   }
 
-  // Intentar con baja precisión primero (más rápido y menos bloqueante en Android)
+  // Mostrar indicador de carga en el mapa mientras espera GPS
+  const mapEl = document.getElementById('leaflet-map');
+  if (mapEl && !leafletMap) {
+    mapEl.innerHTML = `<div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#1a2035;color:#aaa;gap:12px;font-family:sans-serif">
+      <div style="font-size:36px">📡</div>
+      <div style="font-size:14px">Obteniendo tu ubicación GPS…</div>
+      <div style="font-size:12px;color:#666">Acepta el permiso de ubicación</div>
+    </div>`;
+  }
+
+  // Primero: GPS con alta precisión, sin caché (maximumAge:0)
   navigator.geolocation.getCurrentPosition(
-    function(position) {
-      userLocation = {
-        lat: position.coords.latitude,
-        lng: position.coords.longitude
-      };
+    function(pos) {
+      userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      _startWatch();   // activar seguimiento continuo
       initMap();
     },
     function(err) {
-      console.warn('GPS error (intento 1):', err.code, err.message);
-      // Si el permiso fue denegado, usar IP directamente
+      console.warn('GPS err.code=' + err.code, err.message);
+
       if (err.code === 1) {
-        useIPLocation();
+        // Permiso denegado — no se puede hacer nada más que IP
+        _fallbackIP(true);
       } else {
-        // Reintentar sin alta precisión
+        // Timeout / posición no disponible → 2do intento sin alta precisión
         navigator.geolocation.getCurrentPosition(
-          function(position) {
-            userLocation = {
-              lat: position.coords.latitude,
-              lng: position.coords.longitude
-            };
+          function(pos) {
+            userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+            _startWatch();
             initMap();
           },
-          function(err2) {
-            console.warn('GPS error (intento 2):', err2.message);
-            useIPLocation();
-          },
-          { enableHighAccuracy: false, timeout: 12000, maximumAge: 60000 }
+          function() { _fallbackIP(false); },
+          { enableHighAccuracy: false, timeout: 15000, maximumAge: 0 }
         );
       }
     },
-    { enableHighAccuracy: false, timeout: 8000, maximumAge: 30000 }
+    { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
   );
 }
 
-// Fallback: obtener ubicación aproximada por IP (sin pedir permiso GPS)
-function useIPLocation() {
-  fetch('https://ipapi.co/json/')
-    .then(r => r.json())
-    .then(data => {
-      if (data.latitude && data.longitude) {
-        userLocation = { lat: parseFloat(data.latitude), lng: parseFloat(data.longitude) };
-        showToast('📍 Ubicación aproximada — pulsa 📍 para centrar cuando cargue el GPS');
-      } else {
-        userLocation = { lat: -12.0464, lng: -77.0428 };
-        showToast('📍 Usando Lima como punto de inicio');
-      }
-      initMap();
-      // Seguir intentando GPS en background para dar ubicación exacta
-      tryGPSBackground();
-    })
-    .catch(() => {
-      userLocation = { lat: -12.0464, lng: -77.0428 };
-      showToast('📍 Sin conexión de ubicación — usando Lima');
-      initMap();
-      tryGPSBackground();
-    });
-}
-
-// Intenta obtener GPS real en background y actualiza el mapa cuando lo logra
-function tryGPSBackground() {
-  if (!navigator.geolocation) return;
-  navigator.geolocation.getCurrentPosition(
-    function(position) {
-      const newLoc = { lat: position.coords.latitude, lng: position.coords.longitude };
-      userLocation = newLoc;
-      // Actualizar marcador de posición sin destruir el mapa
+// watchPosition continuo para ir actualizando la posición real
+function _startWatch() {
+  if (_gpsWatchId !== null) navigator.geolocation.clearWatch(_gpsWatchId);
+  _gpsWatchId = navigator.geolocation.watchPosition(
+    function(pos) {
+      userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
       if (userMarker && leafletMap) {
-        userMarker.setLatLng([newLoc.lat, newLoc.lng]);
-        leafletMap.setView([newLoc.lat, newLoc.lng], 16);
-        showToast('✅ Ubicación GPS exacta obtenida');
+        userMarker.setLatLng([userLocation.lat, userLocation.lng]);
       }
     },
-    function() { /* silencioso, el mapa ya funciona con IP */ },
+    function(e) { console.warn('watch err:', e.message); },
     { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
   );
 }
 
-function startLocationTracking() {
-  if (!navigator.geolocation) return;
+// Alias para compatibilidad con llamadas previas
+function startLocationTracking() { _startWatch(); }
 
-  navigator.geolocation.watchPosition(
-    function(position) {
-      userLocation = {
-        lat: position.coords.latitude,
-        lng: position.coords.longitude
-      };
-      if (userMarker) {
-        userMarker.setLatLng([userLocation.lat, userLocation.lng]);
-      }
-    },
-    function(error) {
-      console.warn('watchPosition error:', error.message);
-    },
-    { enableHighAccuracy: false, timeout: 15000, maximumAge: 10000 }
-  );
+// Fallback IP cuando GPS no funciona
+function _fallbackIP(denied) {
+  if (denied) showToast('⚠️ Permiso GPS denegado — activalo en Ajustes del celular');
+
+  fetch('https://ipapi.co/json/')
+    .then(r => r.json())
+    .then(d => {
+      userLocation = (d.latitude && d.longitude)
+        ? { lat: parseFloat(d.latitude), lng: parseFloat(d.longitude) }
+        : { lat: -12.0464, lng: -77.0428 };
+      if (!denied) showToast('📍 Ubicación aproximada por red — activa el GPS para mayor precisión');
+      initMap();
+    })
+    .catch(() => {
+      userLocation = { lat: -12.0464, lng: -77.0428 };
+      showToast('📍 Sin GPS — usando Lima por defecto');
+      initMap();
+    });
 }
+
+// Centrar mapa en mi ubicación (botón 📍 del mapa)
+function centerMyLocation() {
+  if (userLocation && leafletMap) {
+    leafletMap.setView([userLocation.lat, userLocation.lng], 17);
+    if (userMarker) userMarker.openPopup();
+    return;
+  }
+  showToast('📡 Buscando ubicación…');
+  getCurrentLocation();
+}
+
+// tryGPSBackground ya no es necesario pero lo dejamos vacío por compatibilidad
+function tryGPSBackground() {}
+function useIPLocation() { _fallbackIP(false); }
 
 // ===================================================================
 // SCREENS
@@ -893,15 +889,14 @@ function showScreen(id) {
     updateHomeUI();
     setTimeout(() => {
       if (!leafletMap) {
-        if (userLocation) {
-          initMap();
-        } else {
-          getCurrentLocation();
-        }
+        getCurrentLocation();          // GPS real → initMap
       } else {
-        // Mapa ya existe: sólo corregir tamaño (resuelve pantalla negra)
-        leafletMap.invalidateSize(true);
+        [100, 400, 900].forEach(ms =>
+          setTimeout(() => { if (leafletMap) leafletMap.invalidateSize(true); }, ms)
+        );
       }
+      // Actualizar el label de ubicación una vez que el GPS ya llegó
+      if (userLocation) updateHomeUI();
     }, 150);
   }
   if (id === 'screen-report') {
@@ -1021,8 +1016,23 @@ function updateHomeUI() {
   if (!currentUser) return;
   const firstName = currentUser.name.split(' ')[0];
   document.getElementById('home-greeting').textContent = `Hola, ${firstName} 👋`;
-  document.getElementById('home-loc').textContent = `📍 ${currentUser.district}, Lima`;
   document.getElementById('home-avatar').textContent = initials(currentUser.name);
+
+  // Ubicación: GPS real si existe, sino distrito del perfil
+  if (userLocation) {
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${userLocation.lat}&lon=${userLocation.lng}&zoom=14`)
+      .then(r => r.json())
+      .then(d => {
+        const sub  = d.address?.suburb || d.address?.city_district || d.address?.county || '';
+        const city = d.address?.city || d.address?.town || 'Lima';
+        document.getElementById('home-loc').textContent = `📍 ${sub ? sub + ', ' : ''}${city}`;
+      })
+      .catch(() => {
+        document.getElementById('home-loc').textContent = `📍 ${currentUser.district}, Lima`;
+      });
+  } else {
+    document.getElementById('home-loc').textContent = `📍 ${currentUser.district}, Lima`;
+  }
 }
 
 function updateProfileUI() {
