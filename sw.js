@@ -1,4 +1,4 @@
-const CACHE_NAME = 'alertavecinal-v4';
+const CACHE_NAME = 'alertavecinal-v5';
 const ASSETS = [
   './',
   './index.html',
@@ -49,3 +49,4 @@ self.addEventListener('fetch', e => {
     caches.match(e.request).then(cached => cached || fetch(e.request))
   );
 });
+
