@@ -313,7 +313,19 @@
 <!-- LOADING -->
 <div id="loading-overlay" class="loading-overlay">
   <div class="loading-spinner"></div>
-  <div class="loading-text">Cargando AlertaVec...</div>
+  <div class="loading-text" id="loading-text">Cargando AlertaVec...</div>
+  <div id="gps-retry-wrap" style="display:none;flex-direction:column;align-items:center;gap:12px;margin-top:8px;">
+    <div style="font-size:12px;color:#888;text-align:center;max-width:260px;line-height:1.6;">
+      Si usas una app instalada, ve a<br>
+      <b style="color:#e74c3c">Ajustes → Apps → AlertaVec → Permisos → Ubicación → Permitir</b>
+    </div>
+    <button onclick="getCurrentLocation()" style="background:#e74c3c;border:none;border-radius:12px;color:white;font-size:15px;font-weight:700;padding:12px 28px;cursor:pointer;">
+      📡 Reintentar GPS
+    </button>
+    <button onclick="_fallbackIP(document.getElementById('loading-overlay'),false)" style="background:transparent;border:1px solid #444;border-radius:12px;color:#aaa;font-size:13px;padding:10px 20px;cursor:pointer;">
+      Continuar sin GPS exacto
+    </button>
+  </div>
 </div>
 
 <!-- ===== LOGIN ===== -->
@@ -771,6 +783,30 @@ function showToast(msg) {
   clearTimeout(t._timer);
   t._timer = setTimeout(() => t.classList.add('hidden'), 2800);
 }
+// ── BLOQUEO GLOBAL pull-to-refresh WebView ───────────────────────────────────
+// Evita que el WebView de WebIntoApp recargue la página al hacer scroll/zoom
+(function() {
+  let startY = 0;
+  document.addEventListener('touchstart', function(e) {
+    startY = e.touches[0].pageY;
+  }, { passive: true });
+
+  document.addEventListener('touchmove', function(e) {
+    // Solo bloquear si la pantalla de mapa está activa Y el gesto viene desde arriba
+    const homeActive = document.getElementById('screen-home')?.classList.contains('active');
+    if (homeActive) {
+      e.preventDefault();   // mata pull-to-refresh nativo del WebView
+    }
+  }, { passive: false });
+})();
+
+// ── Compatibilidad con Leaflet tap en WebView ─────────────────────────────────
+// Necesario para que los clicks funcionen dentro del WebView de WebIntoApp
+if (typeof L !== 'undefined') {
+  L.Browser.touch = true;
+  L.Browser.pointer = false;
+}
+
 // ============================================================
 // GEOLOCALIZACIÓN — GPS real siempre primero
 // ============================================================
@@ -778,44 +814,65 @@ function showToast(msg) {
 let _gpsWatchId = null;
 
 // Llamada principal: espera GPS → luego muestra el mapa
-// Usa el loading-overlay ya existente para no mostrar posición equivocada
 function getCurrentLocation() {
 
-  const overlay  = document.getElementById('loading-overlay');
-  const overlayTxt = overlay ? overlay.querySelector('.loading-text') : null;
+  const overlay    = document.getElementById('loading-overlay');
+  const overlayTxt = document.getElementById('loading-text');
+  const retryWrap  = document.getElementById('gps-retry-wrap');
 
   if (overlayTxt) overlayTxt.textContent = '📡 Obteniendo tu ubicación GPS…';
-  if (overlay) overlay.classList.remove('hidden');
+  if (retryWrap)  retryWrap.style.display = 'none';
+  if (overlay)    overlay.classList.remove('hidden');
 
   if (!navigator.geolocation) {
-    _fallbackIP(overlay);
+    _fallbackIP(overlay, false);
     return;
   }
 
-  // Intento 1: alta precisión, sin caché
-  navigator.geolocation.getCurrentPosition(
-    function(pos) {
-      userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-      _afterGPS(overlay);
-    },
-    function(err) {
-      if (err.code === 1) {
-        // Usuario denegó el permiso — usar IP
-        _fallbackIP(overlay, true);
-      } else {
-        // Timeout o señal débil → 2.º intento sin alta precisión
-        if (overlayTxt) overlayTxt.textContent = '📡 Buscando señal GPS…';
-        navigator.geolocation.getCurrentPosition(
-          function(pos) {
-            userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-            _afterGPS(overlay);
-          },
-          function() { _fallbackIP(overlay, false); },
-          { enableHighAccuracy: false, timeout: 14000, maximumAge: 0 }
-        );
-      }
-    },
-    { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
+  // Mostrar botón de reintento después de 15s si aún cargando
+  const retryTimer = setTimeout(() => {
+    if (retryWrap) retryWrap.style.display = 'flex';
+    if (overlayTxt) overlayTxt.textContent = '⚠️ No se pudo obtener el GPS';
+  }, 15000);
+
+  function onSuccess(pos) {
+    clearTimeout(retryTimer);
+    userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+    _afterGPS(overlay);
+  }
+
+  function onFail(err) {
+    clearTimeout(retryTimer);
+    if (err.code === 1) {
+      // Permiso denegado
+      if (overlayTxt) overlayTxt.textContent = '🚫 Permiso GPS denegado';
+      if (retryWrap)  retryWrap.style.display = 'flex';
+    } else {
+      // Timeout → 2.° intento sin alta precisión con más tiempo
+      if (overlayTxt) overlayTxt.textContent = '📡 Buscando señal GPS (intento 2)…';
+      const retryTimer2 = setTimeout(() => {
+        if (retryWrap) retryWrap.style.display = 'flex';
+        if (overlayTxt) overlayTxt.textContent = '⚠️ GPS no disponible';
+      }, 20000);
+
+      navigator.geolocation.getCurrentPosition(
+        function(pos) {
+          clearTimeout(retryTimer2);
+          userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          _afterGPS(overlay);
+        },
+        function() {
+          clearTimeout(retryTimer2);
+          if (overlayTxt) overlayTxt.textContent = '⚠️ GPS no disponible';
+          if (retryWrap)  retryWrap.style.display = 'flex';
+        },
+        { enableHighAccuracy: false, timeout: 20000, maximumAge: 0 }
+      );
+    }
+  }
+
+  navigator.geolocation.getCurrentPosition(onSuccess, onFail,
+    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
   );
 }
 
@@ -1085,11 +1142,16 @@ function initMap() {
     16
   );
 
-  // Bloquar que el WebView intercepte los gestos táctiles del mapa
+  // ── Bloqueo total del pull-to-refresh del WebView ──────────────────
+  // passive:false es OBLIGATORIO para poder llamar preventDefault()
   const mapEl = document.getElementById('leaflet-map');
-  mapEl.addEventListener('touchstart',  e => e.stopPropagation(), { passive: true });
-  mapEl.addEventListener('touchmove',   e => e.stopPropagation(), { passive: true });
-  mapEl.addEventListener('touchend',    e => e.stopPropagation(), { passive: true });
+  mapEl.addEventListener('touchmove', function(e) {
+    e.preventDefault();   // evita pull-to-refresh nativo
+    e.stopPropagation();
+  }, { passive: false });
+  mapEl.addEventListener('touchstart', function(e) {
+    e.stopPropagation();
+  }, { passive: false });
 
   // MAPA BASE — CartoDB Voyager (calles visibles con estilo neutro)
   L.tileLayer(
