@@ -1,4 +1,5 @@
-const CACHE_NAME = 'alertavecinal-v5';
+
+const CACHE_NAME = 'alertavecinal-v6';
 const ASSETS = [
   './',
   './index.html',
@@ -6,7 +7,7 @@ const ASSETS = [
   './assets/icon-192.png',
   './assets/icon-512.png'
 ];
-
+ 
 // Dominios de tiles y APIs que NUNCA deben cachearse
 const NO_CACHE_DOMAINS = [
   'basemaps.cartocdn.com',
@@ -15,7 +16,7 @@ const NO_CACHE_DOMAINS = [
   'fonts.googleapis.com',
   'fonts.gstatic.com'
 ];
-
+ 
 // Instalar y cachear solo los assets propios
 self.addEventListener('install', e => {
   e.waitUntil(
@@ -23,7 +24,7 @@ self.addEventListener('install', e => {
   );
   self.skipWaiting();
 });
-
+ 
 // Limpiar caches viejos (incluyendo v1 con tiles bloqueados)
 self.addEventListener('activate', e => {
   e.waitUntil(
@@ -33,20 +34,19 @@ self.addEventListener('activate', e => {
   );
   self.clients.claim();
 });
-
+ 
 // Tiles y APIs externas van siempre a la red; assets propios desde cache
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
   const isExternal = NO_CACHE_DOMAINS.some(d => url.hostname.includes(d));
-
+ 
   if (isExternal) {
     // Siempre a la red, sin cachear
     e.respondWith(fetch(e.request));
     return;
   }
-
+ 
   e.respondWith(
     caches.match(e.request).then(cached => cached || fetch(e.request))
   );
 });
-
