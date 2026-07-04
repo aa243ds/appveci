@@ -1,3 +1,5 @@
+
+Index · HTML
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -38,7 +40,7 @@
     /* ===== SCREENS ===== */
     .screen { display:none; position:absolute; inset:0; flex-direction:column; overflow:hidden; }
     .screen.active { display:flex; }
-
+ 
     /* ===== LOGIN ===== */
     #screen-login {
       background: radial-gradient(ellipse at 50% 0%, #2d0a0a 0%, var(--bg) 70%);
@@ -57,7 +59,7 @@
     .tabs-auth { display:flex; background:var(--bg2); border-radius:12px; padding:4px; margin-bottom:20px; }
     .tab-auth { flex:1; padding:10px; text-align:center; border-radius:8px; cursor:pointer; font-size:14px; font-weight:600; color:var(--text2); transition:all .2s; border:none; background:none; }
     .tab-auth.active { background:var(--red); color:white; }
-
+ 
     /* ===== FORMS ===== */
     .form-group { margin-bottom:16px; }
     .form-group label { display:block; font-size:12px; font-weight:600; color:var(--text2); margin-bottom:6px; text-transform:uppercase; letter-spacing:.5px; }
@@ -70,7 +72,7 @@
     .btn-ghost:active { border-color:var(--red); color:var(--red); }
     .badge-row { display:flex; gap:8px; justify-content:center; margin-top:20px; flex-wrap:wrap; }
     .badge { background:rgba(255,255,255,0.06); border:1px solid var(--border); border-radius:20px; padding:4px 12px; font-size:11px; color:var(--text2); }
-
+ 
     /* ===== TOPBAR ===== */
     .topbar { display:flex; align-items:center; padding:12px 16px; background:var(--bg2); border-bottom:1px solid var(--border); gap:12px; min-height:52px; }
     .topbar h2 { font-family:var(--font); font-size:18px; font-weight:700; flex:1; }
@@ -82,7 +84,7 @@
     .topbar-loc { font-size:12px; color:var(--text2); }
     .notif-btn { background:rgba(255,255,255,0.07); border:1px solid var(--border); border-radius:50%; width:38px;height:38px;font-size:18px;cursor:pointer;position:relative;display:flex;align-items:center;justify-content:center; }
     .notif-dot { position:absolute;top:6px;right:6px;width:8px;height:8px;background:var(--red);border-radius:50%;border:2px solid var(--bg2); }
-
+ 
     /* ===== MAP ===== */
     .map-container { flex:1; position:relative; overflow:hidden; min-height:0; }
     #leaflet-map { width:100%; height:100%; min-height:300px; z-index:1; background:#1a2035; }
@@ -102,7 +104,7 @@
     .incident-header > button { margin-left:auto; background:none; border:none; color:var(--text2); font-size:18px; cursor:pointer; }
     .incident-desc { font-size:13px; color:var(--text2); line-height:1.5; margin-bottom:12px; }
     .btn-sm-red { background:var(--red); border:none; border-radius:10px; color:white; font-size:13px; font-weight:600; padding:9px 18px; cursor:pointer; width:100%; }
-
+ 
     /* ===== STATS ===== */
     .stats-row { display:flex; gap:8px; padding:10px 12px; background:var(--bg); border-top:1px solid var(--border); }
     .stat-card { flex:1; background:var(--card); border-radius:12px; padding:10px; text-align:center; cursor:pointer; border:1px solid var(--border); }
@@ -111,7 +113,7 @@
     .stat-num.blue { color:var(--blue); }
     .stat-num.green { color:var(--green); }
     .stat-lbl { font-size:10px; color:var(--text2); margin-top:2px; }
-
+ 
     /* ===== BOTTOM NAV ===== */
     .bottom-nav { display:flex; background:var(--bg2); border-top:1px solid var(--border); padding:6px 0 8px; safe-area-inset-bottom: env(safe-area-inset-bottom); }
     .nav-btn { flex:1; background:none; border:none; color:var(--text2); font-size:10px; display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; padding:4px 0; transition:color .15s; }
@@ -120,11 +122,11 @@
     .nav-btn.active { color:var(--red); }
     .nav-btn.panic-center { position:relative; }
     .nav-btn.panic-center .nav-icon { width:46px;height:46px;background:linear-gradient(135deg,var(--red),#9b2335);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;margin-top:-16px;box-shadow:0 4px 20px var(--red-glow);border:2px solid var(--red-dark); }
-
+ 
     /* ===== SCROLLABLE CONTENT ===== */
     .content-pad { flex:1; overflow-y:auto; padding:16px; }
     .content-pad::-webkit-scrollbar { width:0; }
-
+ 
     /* ===== ALERTS ===== */
     .alerts-list { flex:1; overflow-y:auto; padding:12px; display:flex; flex-direction:column; gap:10px; }
     .alert-card { background:var(--card); border-radius:14px; padding:14px; border-left:4px solid var(--red); border:1px solid var(--border); border-left-width:4px; }
@@ -142,7 +144,7 @@
     .chip { background:var(--bg3); border:1px solid var(--border); border-radius:20px; padding:6px 14px; font-size:13px; color:var(--text2); cursor:pointer; white-space:nowrap; }
     .chip.active { background:var(--red); border-color:var(--red); color:white; }
     .filter-btn { background:none; border:1px solid var(--border); border-radius:8px; color:var(--text2); font-size:13px; padding:5px 12px; cursor:pointer; }
-
+ 
     /* ===== REPORT ===== */
     .section-hint { font-size:13px; color:var(--text2); margin-bottom:14px; }
     .type-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:20px; }
@@ -156,7 +158,7 @@
     .toggle-slider::after { content:'';position:absolute;width:20px;height:20px;background:white;border-radius:50%;top:2px;left:2px;transition:.2s; }
     input:checked + .toggle-slider { background:var(--green); }
     input:checked + .toggle-slider::after { left:22px; }
-
+ 
     /* ===== SOS / PANIC ===== */
     .panic-screen { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; gap:24px; background:radial-gradient(ellipse at center, #1a0505 0%, var(--bg) 70%); }
     .panic-info { background:var(--card); border-radius:16px; padding:20px; width:100%; border:1px solid var(--border); }
@@ -194,7 +196,7 @@
     .tracking-labels { display:flex; justify-content:space-between; width:100%; font-size:11px; color:var(--text2); }
     .sos-timer { font-size:13px; color:var(--text2); }
     .sos-count { font-size:36px; font-family:var(--font); font-weight:700; color:var(--red); }
-
+ 
     /* ===== COMMUNITY / FORO ===== */
     .community-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:20px; }
     .c-stat { background:var(--card); border-radius:12px; padding:14px 10px; text-align:center; border:1px solid var(--border); }
@@ -222,7 +224,7 @@
     .btn-icon { background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:10px 14px; font-size:16px; cursor:pointer; transition:.15s; }
     .btn-icon:active { background:rgba(255,255,255,0.05); }
     .btn-send { flex:1; background:var(--blue); border:none; border-radius:10px; color:white; font-family:var(--font); font-size:15px; font-weight:600; padding:11px; cursor:pointer; }
-
+ 
     /* ===== PROFILE ===== */
     .profile-header { text-align:center; margin-bottom:24px; }
     .profile-avatar { width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--red),#9b59b6);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;margin:0 auto 12px; }
@@ -242,25 +244,25 @@
     .setting-item { display:flex; justify-content:space-between; align-items:center; padding:14px 16px; border-bottom:1px solid var(--border); font-size:14px; }
     .setting-item:last-child { border-bottom:none; }
     .red-ghost { border-color:rgba(231,76,60,0.3)!important; color:var(--red)!important; }
-
+ 
     /* ===== TOAST ===== */
     .toast { position:fixed; bottom:90px; left:50%; transform:translateX(-50%); background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px 20px; font-size:14px; font-weight:500; z-index:9999; box-shadow:0 8px 32px rgba(0,0,0,0.4); transition:opacity .3s; white-space:nowrap; max-width:90vw; }
     .toast.hidden { opacity:0; pointer-events:none; }
-
+ 
     /* ===== MODAL ===== */
     .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:100; display:flex; align-items:flex-end; backdrop-filter:blur(4px); }
     .modal-overlay.hidden { display:none; }
     .modal-sheet { background:var(--card); border-radius:24px 24px 0 0; padding:24px; width:100%; border-top:1px solid var(--border); max-height:80vh; overflow-y:auto; }
     .modal-handle { width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px; }
     .modal-title { font-family:var(--font); font-size:18px; font-weight:700; margin-bottom:16px; }
-
+ 
     /* ===== LOADING OVERLAY ===== */
     .loading-overlay { position:fixed; inset:0; background:var(--bg); z-index:9999; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:16px; }
     .loading-overlay.hidden { display:none; }
     .loading-spinner { width:48px;height:48px;border:3px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:spin 1s linear infinite; }
     @keyframes spin { to{transform:rotate(360deg)} }
     .loading-text { font-size:14px; color:var(--text2); }
-
+ 
     /* Leaflet custom markers */
     .custom-marker { width:36px;height:36px;border-radius:50%;border:3px solid white;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 4px 12px rgba(0,0,0,0.4); }
     .custom-marker.red { background:var(--red); }
@@ -268,15 +270,15 @@
     .custom-marker.blue { background:var(--blue); }
     .custom-marker.pulse-marker { animation:markerPulse 2s ease-in-out infinite; }
     @keyframes markerPulse { 0%,100%{box-shadow:0 0 0 0 rgba(231,76,60,0.4)} 50%{box-shadow:0 0 0 12px rgba(231,76,60,0)} }
-
+ 
     /* SOS shake animation */
     @keyframes shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-4px)} 40%,80%{transform:translateX(4px)} }
     .shake { animation:shake .4s ease; }
-
+ 
     /* Screen content scroll */
     #screen-alerts { overflow:hidden; }
     #screen-community .content-pad { display:flex; flex-direction:column; }
-
+ 
     /* Botones de zoom + / - más grandes */
     .leaflet-control-zoom a {
         width: 42px;
@@ -284,14 +286,14 @@
         line-height: 42px;
         font-size: 22px;
     }
-
+ 
     /* Mini-mapa para elegir ubicación exacta del reporte */
     #report-map { width:100%; height:190px; border-radius:14px; border:1px solid var(--border); margin-top:8px; z-index:1; }
     .report-map-row { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:8px; font-size:12px; color:var(--text2); }
     #report-map-hint { flex:1; line-height:1.4; }
     .btn-mini { flex-shrink:0; background:var(--bg3); border:1px solid var(--border); color:var(--text); font-family:var(--font2); font-size:12px; font-weight:600; padding:8px 10px; border-radius:10px; cursor:pointer; }
     .btn-mini:active { border-color:var(--red); color:var(--red); }
-
+ 
     /* Panel de administrador */
     .admin-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:16px; }
     .admin-tabs .tab-auth { font-size:12px; padding:10px 4px; }
@@ -308,13 +310,13 @@
   </style>
 </head>
 <body>
-
+ 
 <!-- LOADING -->
 <div id="loading-overlay" class="loading-overlay">
   <div class="loading-spinner"></div>
   <div class="loading-text">Cargando AlertaVec...</div>
 </div>
-
+ 
 <!-- ===== LOGIN ===== -->
 <div id="screen-login" class="screen">
   <div class="pulse-ring r1"></div>
@@ -379,7 +381,7 @@
     </div>
   </div>
 </div>
-
+ 
 <!-- ===== DASHBOARD (MAPA) ===== -->
 <div id="screen-home" class="screen">
   <div class="topbar-home">
@@ -435,7 +437,7 @@
     <button class="nav-btn" onclick="showScreen('screen-community')"><span class="nav-icon">👥</span><span>Comunidad</span></button>
   </nav>
 </div>
-
+ 
 <!-- ===== ALERTAS ===== -->
 <div id="screen-alerts" class="screen">
   <div class="topbar">
@@ -459,7 +461,7 @@
     <button class="nav-btn" onclick="showScreen('screen-community')"><span class="nav-icon">👥</span><span>Comunidad</span></button>
   </nav>
 </div>
-
+ 
 <!-- ===== REPORTE ===== -->
 <div id="screen-report" class="screen">
   <div class="topbar">
@@ -510,7 +512,7 @@
     <button class="nav-btn" onclick="showScreen('screen-community')"><span class="nav-icon">👥</span><span>Comunidad</span></button>
   </nav>
 </div>
-
+ 
 <!-- ===== SOS / PÁNICO ===== -->
 <div id="screen-panic" class="screen">
   <div class="topbar" style="background:#1a0505;border-color:rgba(231,76,60,0.2)">
@@ -527,7 +529,7 @@
         <div class="authority-item">👥 Vecinos cercanos</div>
       </div>
     </div>
-
+ 
     <!-- Botón SOS activo -->
     <div id="panic-wrap" class="panic-btn-wrap">
       <div class="panic-outer-ring"></div>
@@ -540,13 +542,13 @@
       </button>
       <div class="panic-progress" id="panic-progress"></div>
     </div>
-
+ 
     <!-- Countdown visual -->
     <div id="panic-counting" style="display:none;text-align:center">
       <div class="sos-count" id="sos-count">3</div>
       <div class="sos-timer">Suelta para cancelar...</div>
     </div>
-
+ 
     <!-- Enviado -->
     <div id="panic-sent" class="panic-sent">
       <div class="sent-icon">🚨</div>
@@ -573,7 +575,7 @@
     <button class="nav-btn" onclick="showScreen('screen-community')"><span class="nav-icon">👥</span><span>Comunidad</span></button>
   </nav>
 </div>
-
+ 
 <!-- ===== COMUNIDAD ===== -->
 <div id="screen-community" class="screen">
   <div class="topbar">
@@ -604,7 +606,7 @@
     <button class="nav-btn active" onclick="showScreen('screen-community')"><span class="nav-icon">👥</span><span>Comunidad</span></button>
   </nav>
 </div>
-
+ 
 <!-- ===== PERFIL ===== -->
 <div id="screen-profile" class="screen">
   <div class="topbar">
@@ -636,7 +638,7 @@
     <button class="btn-ghost red-ghost" onclick="logout()">Cerrar sesión</button>
   </div>
 </div>
-
+ 
 <!-- ===== PANEL DE ADMINISTRADOR ===== -->
 <div id="screen-admin" class="screen">
   <div class="topbar">
@@ -651,14 +653,14 @@
       <div class="c-stat"><div class="c-num" id="admin-stat-users">0</div><div class="c-lbl">Usuarios</div></div>
       <div class="c-stat"><div class="c-num" id="admin-stat-sos">0</div><div class="c-lbl">S.O.S</div></div>
     </div>
-
+ 
     <div class="tabs-auth admin-tabs">
       <button class="tab-auth active" id="admin-tab-reports-btn" onclick="switchAdminTab('reports')">Reportes</button>
       <button class="tab-auth" id="admin-tab-forum-btn" onclick="switchAdminTab('forum')">Foro</button>
       <button class="tab-auth" id="admin-tab-users-btn" onclick="switchAdminTab('users')">Usuarios</button>
       <button class="tab-auth" id="admin-tab-sos-btn" onclick="switchAdminTab('sos')">S.O.S</button>
     </div>
-
+ 
     <div id="admin-panel-reports" class="admin-panel">
       <div id="admin-reports-list" class="forum-list"></div>
     </div>
@@ -673,10 +675,10 @@
     </div>
   </div>
 </div>
-
+ 
 <!-- TOAST -->
 <div id="toast" class="toast hidden"></div>
-
+ 
 <!-- MODAL ubicación -->
 <div id="loc-modal" class="modal-overlay hidden" onclick="closeLocModal(event)">
   <div class="modal-sheet">
@@ -687,7 +689,7 @@
     <button class="btn-ghost" onclick="document.getElementById('loc-modal').classList.add('hidden')">Cancelar</button>
   </div>
 </div>
-
+ 
 <script>
 // ===================================================================
 // DB: LocalStorage como base de datos
@@ -707,7 +709,7 @@ const DB = {
     return arr;
   }
 };
-
+ 
 // ===================================================================
 // ESTADO GLOBAL
 // ===================================================================
@@ -726,7 +728,7 @@ let userLocation = null;
 let reportMap = null;
 let reportMarker = null;
 let reportLocation = null;
-
+ 
 // Incidentes fijos del mapa (zona Miraflores/Lima)
 const MAP_INCIDENTS = [
   { lat:-12.1217, lng:-77.0278, type:'robo', icon:'🔴', color:'red', title:'Robo reportado', time:'Hace 5 min', desc:'Intento de robo al paso en Av. Larco con Schell. Delincuente huyó hacia Parque Kennedy.' },
@@ -735,7 +737,7 @@ const MAP_INCIDENTS = [
   { lat:-12.1270, lng:-77.0300, type:'robo', icon:'🔴', color:'red', title:'Robo de celular', time:'Hace 3h', desc:'Robo en paradero de bus. Víctima presentó denuncia en comisaría.' },
   { lat:-12.1165, lng:-77.0290, type:'sospechoso', icon:'🟠', color:'orange', title:'Mototaxi sin placa', time:'Hace 4h', desc:'Tres individuos en mototaxi sin placa realizando vueltas en zona residencial.' },
 ];
-
+ 
 // Data de alertas
 const alertsData = [
   { id:1, type:'Robo / Asalto', color:'red', icon:'🔴', time:'Hace 5 min', dist:'120m', desc:'Intento de robo al paso en Av. Larco con Schell. Delincuente huyó hacia Parque Kennedy.', confirms:3, district:'Miraflores', tag:'robo' },
@@ -744,14 +746,14 @@ const alertsData = [
   { id:4, type:'Acoso callejero', color:'purple', icon:'🟣', time:'Hace 2 h', dist:'1.2 km', desc:'Mujer reportó acoso en paradero de la Av. Angamos. Serenazgo fue notificado.', confirms:2, district:'Miraflores', tag:'acoso' },
   { id:5, type:'Robo / Asalto', color:'red', icon:'🔴', time:'Hace 3 h', dist:'800m', desc:'Robo de celular en el interior del Metropolitano. Cámara interna registró el hecho.', confirms:7, district:'Lima Centro', tag:'robo' },
 ];
-
+ 
 // Foro inicial (solo si no hay datos guardados aún)
 const FORUM_SEED = [
   { id:'seed1', author:'María G.', avatar:'MG', text:'¡Vecinos! Hubo un robo anoche en el Jr. Lima. Por favor tengan cuidado.', time:'10/06/2026 22:00', likes:8, type:'msg', loc:null },
   { id:'seed2', author:'Carlos V.', avatar:'CV', text:'La municipalidad instalará nuevas cámaras en la Av. Principal el próximo lunes.', time:'10/06/2026 15:30', likes:15, type:'msg', loc:null },
   { id:'seed3', author:'Lucía P.', avatar:'LP', text:'Organizamos una reunión vecinal el sábado 10am en el parque. Tema: seguridad.', time:'09/06/2026 11:00', likes:22, type:'msg', loc:null },
 ];
-
+ 
 // ===================================================================
 // UTILS
 // ===================================================================
@@ -771,60 +773,64 @@ function showToast(msg) {
   t._timer = setTimeout(() => t.classList.add('hidden'), 2800);
 }
 // ============================================================
-// GEOLOCALIZACIÓN — GPS real primero, sin caché
+// GEOLOCALIZACIÓN — GPS real siempre primero
 // ============================================================
-
-let _gpsWatchId = null;   // ID del watchPosition activo
-
+ 
+let _gpsWatchId = null;
+ 
+// Llamada principal: espera GPS → luego muestra el mapa
+// Usa el loading-overlay ya existente para no mostrar posición equivocada
 function getCurrentLocation() {
-
+ 
+  const overlay  = document.getElementById('loading-overlay');
+  const overlayTxt = overlay ? overlay.querySelector('.loading-text') : null;
+ 
+  if (overlayTxt) overlayTxt.textContent = '📡 Obteniendo tu ubicación GPS…';
+  if (overlay) overlay.classList.remove('hidden');
+ 
   if (!navigator.geolocation) {
-    _fallbackIP();
+    _fallbackIP(overlay);
     return;
   }
-
-  // Mostrar indicador de carga en el mapa mientras espera GPS
-  const mapEl = document.getElementById('leaflet-map');
-  if (mapEl && !leafletMap) {
-    mapEl.innerHTML = `<div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#1a2035;color:#aaa;gap:12px;font-family:sans-serif">
-      <div style="font-size:36px">📡</div>
-      <div style="font-size:14px">Obteniendo tu ubicación GPS…</div>
-      <div style="font-size:12px;color:#666">Acepta el permiso de ubicación</div>
-    </div>`;
-  }
-
-  // Primero: GPS con alta precisión, sin caché (maximumAge:0)
+ 
+  // Intento 1: alta precisión, sin caché
   navigator.geolocation.getCurrentPosition(
     function(pos) {
       userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-      _startWatch();   // activar seguimiento continuo
-      initMap();
+      _afterGPS(overlay);
     },
     function(err) {
-      console.warn('GPS err.code=' + err.code, err.message);
-
       if (err.code === 1) {
-        // Permiso denegado — no se puede hacer nada más que IP
-        _fallbackIP(true);
+        // Usuario denegó el permiso — usar IP
+        _fallbackIP(overlay, true);
       } else {
-        // Timeout / posición no disponible → 2do intento sin alta precisión
+        // Timeout o señal débil → 2.º intento sin alta precisión
+        if (overlayTxt) overlayTxt.textContent = '📡 Buscando señal GPS…';
         navigator.geolocation.getCurrentPosition(
           function(pos) {
             userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-            _startWatch();
-            initMap();
+            _afterGPS(overlay);
           },
-          function() { _fallbackIP(false); },
-          { enableHighAccuracy: false, timeout: 15000, maximumAge: 0 }
+          function() { _fallbackIP(overlay, false); },
+          { enableHighAccuracy: false, timeout: 14000, maximumAge: 0 }
         );
       }
     },
     { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
   );
 }
-
-// watchPosition continuo para ir actualizando la posición real
+ 
+// GPS obtenido: arrancar watchPosition y abrir el mapa
+function _afterGPS(overlay) {
+  _startWatch();
+  if (overlay) overlay.classList.add('hidden');
+  showScreen('screen-home');
+  updateHomeUI();
+}
+ 
+// watchPosition continuo — actualiza el marcador en tiempo real
 function _startWatch() {
+  if (!navigator.geolocation) return;
   if (_gpsWatchId !== null) navigator.geolocation.clearWatch(_gpsWatchId);
   _gpsWatchId = navigator.geolocation.watchPosition(
     function(pos) {
@@ -833,35 +839,34 @@ function _startWatch() {
         userMarker.setLatLng([userLocation.lat, userLocation.lng]);
       }
     },
-    function(e) { console.warn('watch err:', e.message); },
+    function() {},
     { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
   );
 }
-
-// Alias para compatibilidad con llamadas previas
-function startLocationTracking() { _startWatch(); }
-
-// Fallback IP cuando GPS no funciona
-function _fallbackIP(denied) {
-  if (denied) showToast('⚠️ Permiso GPS denegado — activalo en Ajustes del celular');
-
+ 
+// Fallback por IP cuando GPS no está disponible
+function _fallbackIP(overlay, denied) {
+  if (denied) showToast('⚠️ GPS denegado — ve a Ajustes > Permisos > Ubicación');
   fetch('https://ipapi.co/json/')
     .then(r => r.json())
     .then(d => {
       userLocation = (d.latitude && d.longitude)
         ? { lat: parseFloat(d.latitude), lng: parseFloat(d.longitude) }
         : { lat: -12.0464, lng: -77.0428 };
-      if (!denied) showToast('📍 Ubicación aproximada por red — activa el GPS para mayor precisión');
-      initMap();
+      if (!denied) showToast('📍 Ubicación aproximada — activa el GPS para mayor precisión');
+      if (overlay) overlay.classList.add('hidden');
+      showScreen('screen-home');
+      updateHomeUI();
     })
     .catch(() => {
       userLocation = { lat: -12.0464, lng: -77.0428 };
-      showToast('📍 Sin GPS — usando Lima por defecto');
-      initMap();
+      if (overlay) overlay.classList.add('hidden');
+      showScreen('screen-home');
+      updateHomeUI();
     });
 }
-
-// Centrar mapa en mi ubicación (botón 📍 del mapa)
+ 
+// Botón 📍 del mapa: centrar en posición actual
 function centerMyLocation() {
   if (userLocation && leafletMap) {
     leafletMap.setView([userLocation.lat, userLocation.lng], 17);
@@ -871,11 +876,12 @@ function centerMyLocation() {
   showToast('📡 Buscando ubicación…');
   getCurrentLocation();
 }
-
-// tryGPSBackground ya no es necesario pero lo dejamos vacío por compatibilidad
-function tryGPSBackground() {}
-function useIPLocation() { _fallbackIP(false); }
-
+ 
+// Alias de compatibilidad
+function startLocationTracking() { _startWatch(); }
+function tryGPSBackground()     {}
+function useIPLocation()         { _fallbackIP(null, false); }
+ 
 // ===================================================================
 // SCREENS
 // ===================================================================
@@ -887,15 +893,16 @@ function showScreen(id) {
   if (id === 'screen-community') renderForum();
   if (id === 'screen-home') {
     updateHomeUI();
+    // Si el mapa ya existe solo corregir tamaño; si no, iniciarlo con la ubicación disponible
     setTimeout(() => {
-      if (!leafletMap) {
-        getCurrentLocation();          // GPS real → initMap
-      } else {
-        [100, 400, 900].forEach(ms =>
+      if (leafletMap) {
+        [100, 400, 800].forEach(ms =>
           setTimeout(() => { if (leafletMap) leafletMap.invalidateSize(true); }, ms)
         );
+      } else if (userLocation) {
+        initMap();
       }
-      // Actualizar el label de ubicación una vez que el GPS ya llegó
+      // Refrescar label de ubicación si ya tenemos GPS
       if (userLocation) updateHomeUI();
     }, 150);
   }
@@ -905,7 +912,7 @@ function showScreen(id) {
   if (id === 'screen-profile') updateProfileUI();
   if (id === 'screen-admin') renderAdminPanel();
 }
-
+ 
 // ===================================================================
 // AUTH
 // ===================================================================
@@ -919,105 +926,95 @@ function login() {
   const email = document.getElementById('login-email').value.trim();
   const pass = document.getElementById('login-pass').value.trim();
   if (!email || !pass) { showToast('⚠️ Completa todos los campos'); return; }
-
+ 
   const users = DB.get('users', {});
   const user = users[email];
   if (!user) { showToast('❌ No existe una cuenta con ese correo'); return; }
   if (user.pass !== pass) { showToast('❌ Contraseña incorrecta'); return; }
-
+ 
   currentUser = user;
   DB.set('currentUser', user);
   showToast(`✅ Bienvenido, ${user.name.split(' ')[0]}!`);
   setTimeout(() => {
-
-  if (user.role === 'admin') {
-    showScreen('screen-admin');
-  } else {
-    showScreen('screen-home');
-    getCurrentLocation();
-    startLocationTracking();
-  }
-}, 700);
+    if (user.role === 'admin') {
+      showScreen('screen-admin');
+    } else {
+      // getCurrentLocation muestra el loading, espera GPS y luego abre screen-home
+      getCurrentLocation();
+    }
+  }, 700);
 }
-
+ 
 function register() {
   const name = document.getElementById('reg-name').value.trim();
   const email = document.getElementById('reg-email').value.trim();
   const pass = document.getElementById('reg-pass').value.trim();
   const district = document.getElementById('reg-district').value;
   const phone = document.getElementById('reg-phone').value.trim();
-
+ 
   if (!name || !email || !pass || !district || !phone) { showToast('⚠️ Completa todos los campos'); return; }
   if (pass.length < 6) { showToast('⚠️ La contraseña debe tener mínimo 6 caracteres'); return; }
   if (!email.includes('@')) { showToast('⚠️ Correo inválido'); return; }
-
+ 
   const users = DB.get('users', {});
   if (users[email]) { showToast('⚠️ Ya existe una cuenta con ese correo'); return; }
-
+ 
   const user = { name, email, pass, district, phone, role: 'user', created: formatDateTime() };
   users[email] = user;
   DB.set('users', users);
   currentUser = user;
   DB.set('currentUser', user);
-
-  showToast(`✅ ¡Cuenta creada! Bienvenido, ${name.split(' ')[0]}`);
- setTimeout(() => {
-
-  showScreen('screen-home');
-  getCurrentLocation();
-  startLocationTracking();
-// AQUII
  
-}, 700);
-
-
-
+  showToast(`✅ ¡Cuenta creada! Bienvenido, ${name.split(' ')[0]}`);
+  setTimeout(() => {
+    getCurrentLocation();
+  }, 700);
 }
 function startLocationTracking() {
-
+ 
   if (!navigator.geolocation) return;
-
+ 
   navigator.geolocation.watchPosition(
-
+ 
     function(position) {
-
+ 
       userLocation = {
         lat: position.coords.latitude,
         lng: position.coords.longitude
       };
-
+ 
       if (userMarker) {
         userMarker.setLatLng([
           userLocation.lat,
           userLocation.lng
         ]);
       }
-
+ 
     },
-
+ 
     function(error) {
       console.log(error);
     },
-
+ 
     {
       enableHighAccuracy: true
     }
-
+ 
   );
-
+ 
 }
 function logout() {
   currentUser = null;
   DB.set('currentUser', null);
   showScreen('screen-login');
 }
-
+ 
 function updateHomeUI() {
   if (!currentUser) return;
   const firstName = currentUser.name.split(' ')[0];
   document.getElementById('home-greeting').textContent = `Hola, ${firstName} 👋`;
   document.getElementById('home-avatar').textContent = initials(currentUser.name);
-
+ 
   // Ubicación: GPS real si existe, sino distrito del perfil
   if (userLocation) {
     fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${userLocation.lat}&lon=${userLocation.lng}&zoom=14`)
@@ -1034,7 +1031,7 @@ function updateHomeUI() {
     document.getElementById('home-loc').textContent = `📍 ${currentUser.district}, Lima`;
   }
 }
-
+ 
 function updateProfileUI() {
   if (!currentUser) return;
   document.getElementById('profile-avatar-disp').textContent = initials(currentUser.name);
@@ -1043,25 +1040,25 @@ function updateProfileUI() {
   const reports = DB.get('reports', []).filter(r => r.author === currentUser.email);
   document.getElementById('p-stat-reports').textContent = reports.length;
 }
-
+ 
 // ===================================================================
 // MAP
 // ===================================================================
-
+ 
 let mapInitialized = false;
-
+ 
 let reportMarkers = [];  // Array global para limpiar marcadores de reportes
-
+ 
 function initMap() {
-
+ 
   if (!userLocation) return;
-
+ 
   if (leafletMap) {
     leafletMap.remove();
     leafletMap = null;
     reportMarkers = [];
   }
-
+ 
   leafletMap = L.map('leaflet-map', {
     zoomControl: true,
     attributionControl: true
@@ -1069,7 +1066,7 @@ function initMap() {
     [userLocation.lat, userLocation.lng],
     16
   );
-
+ 
   // MAPA BASE — CartoDB Voyager (calles visibles con estilo neutro)
   L.tileLayer(
     'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
@@ -1079,7 +1076,7 @@ function initMap() {
       maxZoom: 20
     }
   ).addTo(leafletMap);
-
+ 
   // MI UBICACIÓN — marcador azul destacado
   const myIcon = L.divIcon({
     html: `<div style="width:18px;height:18px;border-radius:50%;background:#2e75b6;border:3px solid white;box-shadow:0 0 0 4px rgba(46,117,182,0.35)"></div>`,
@@ -1088,15 +1085,15 @@ function initMap() {
   userMarker = L.marker([userLocation.lat, userLocation.lng], { icon: myIcon })
     .addTo(leafletMap)
     .bindPopup('<b>📍 Mi ubicación actual</b>');
-
+ 
   renderReportsOnMap();
-
+ 
   // Forzar recálculo de tamaño varias veces (resuelve el negro definitivamente)
   [200, 500, 1000].forEach(ms => {
     setTimeout(() => { if (leafletMap) leafletMap.invalidateSize(true); }, ms);
   });
 }
-
+ 
 // Centrar mapa en mi ubicación actual (botón 📍)
 function centerMyLocation() {
   if (!leafletMap) return;
@@ -1108,14 +1105,14 @@ function centerMyLocation() {
   showToast('📡 Obteniendo ubicación...');
   getCurrentLocation();
 }
-
+ 
 function renderReportsOnMap() {
   if (!leafletMap) return;
-
+ 
   // Limpiar marcadores de reportes anteriores
   reportMarkers.forEach(m => m.remove());
   reportMarkers = [];
-
+ 
   const reports = DB.get('reports', []);
   reports.forEach(r => {
     if (!r.lat || !r.lng) return;
@@ -1129,7 +1126,7 @@ function renderReportsOnMap() {
     reportMarkers.push(m);
   });
 }
-
+ 
 function showIncident(inc) {
   document.getElementById('incident-icon').textContent = inc.icon || '🔴';
   document.getElementById('incident-title').textContent = inc.title;
@@ -1139,25 +1136,25 @@ function showIncident(inc) {
 }
 function closeIncident() { document.getElementById('incident-panel').classList.add('hidden'); }
 function confirmIncident() { showToast('✅ Alerta confirmada. Gracias.'); closeIncident(); }
-
+ 
 // ===================================================================
 // MINI-MAPA: elegir punto exacto del reporte (avenida cercana)
 // ===================================================================
 function initReportMap() {
-
+ 
   const doInit = (center) => {
     reportLocation = { lat: center.lat, lng: center.lng };
-
+ 
     if (reportMap) {
       reportMap.remove();
       reportMap = null;
     }
-
+ 
     reportMap = L.map('report-map', { zoomControl: true }).setView(
       [center.lat, center.lng],
       17
     );
-
+ 
     L.tileLayer(
       'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
       {
@@ -1166,27 +1163,27 @@ function initReportMap() {
         maxZoom: 20
       }
     ).addTo(reportMap);
-
+ 
     reportMarker = L.marker([center.lat, center.lng], { draggable: true }).addTo(reportMap);
-
+ 
     reportMarker.on('dragend', () => {
       const pos = reportMarker.getLatLng();
       reportLocation = { lat: pos.lat, lng: pos.lng };
       previewReportAddress();
     });
-
+ 
     reportMap.on('click', (e) => {
       reportMarker.setLatLng(e.latlng);
       reportLocation = { lat: e.latlng.lat, lng: e.latlng.lng };
       previewReportAddress();
     });
-
+ 
     // Forzar recálculo de tamaño
     setTimeout(() => { if (reportMap) reportMap.invalidateSize(true); }, 300);
-
+ 
     previewReportAddress();
   };
-
+ 
   // Si ya tenemos ubicación la usamos directo, si no pedimos GPS / IP
   if (userLocation) {
     doInit(userLocation);
@@ -1221,7 +1218,7 @@ function initReportMap() {
     doInit({ lat: -12.0464, lng: -77.0428 });
   }
 }
-
+ 
 async function previewReportAddress() {
   const hint = document.getElementById('report-map-hint');
   if (!hint || !reportLocation) return;
@@ -1237,7 +1234,7 @@ async function previewReportAddress() {
     hint.textContent = '📍 Ubicación seleccionada en el mapa';
   }
 }
-
+ 
 function resetReportPin() {
   if (!userLocation) { showToast('⚠️ No se pudo obtener tu ubicación GPS'); return; }
   reportLocation = { lat: userLocation.lat, lng: userLocation.lng };
@@ -1245,7 +1242,7 @@ function resetReportPin() {
   if (reportMap) reportMap.setView([userLocation.lat, userLocation.lng], 17);
   previewReportAddress();
 }
-
+ 
 // ===================================================================
 // ALERTS
 // ===================================================================
@@ -1280,9 +1277,9 @@ background:#e74c3c;
 color:white;
 cursor:pointer;"
 onclick="showAlertOnMap('${a.id}')">
-
+ 
 📍 Ver en mapa
-
+ 
 </button>
         <span class="alert-meta">📍 ${a.district}</span>
         ${a.dist !== '--' ? `<span class="alert-meta">📏 ${a.dist}</span>` : ''}
@@ -1293,24 +1290,24 @@ onclick="showAlertOnMap('${a.id}')">
   });
   document.getElementById('stat-alerts').textContent = all.length;
 }
-
+ 
 function showAlertOnMap(id) {
-
+ 
   const reports = DB.get('reports', []);
-
+ 
   const alert = reports.find(r => r.id == id);
-
+ 
   if (!alert) return;
-
+ 
   showScreen('screen-home');
 //AD
   setTimeout(() => {
-
+ 
     leafletMap.setView(
       [alert.lat, alert.lng],
       18
     );
-
+ 
   }, 300);
 }
 function toggleFilter() {
@@ -1323,7 +1320,7 @@ function filterAlerts(tag, el) {
   const filtered = tag === 'all' ? alertsData : alertsData.filter(a => a.tag === tag);
   renderAlerts(filtered);
 }
-
+ 
 // ===================================================================
 // REPORT — guardado persistente
 // ===================================================================
@@ -1332,7 +1329,7 @@ function selectType(el, type, tag, color) {
   el.classList.add('selected');
   selectedType = type; selectedTag = tag; selectedColor = color;
 }
-
+ 
 async function submitReport() {
   if (!selectedType) { showToast('⚠️ Selecciona un tipo de incidente'); return; }
   const desc = document.getElementById('report-desc').value.trim();
@@ -1340,27 +1337,27 @@ async function submitReport() {
   if (!desc || !addr) { showToast('⚠️ Completa la descripción y dirección'); return; }
   const anon = document.getElementById('anon-check').checked;
   const author = anon ? 'Anónimo' : (currentUser ? currentUser.name : 'Vecino');
-
+ 
   let fullAddress = addr;
-
+ 
   if (reportLocation) {
     try {
-
+ 
       const res = await fetch(
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${reportLocation.lat}&lon=${reportLocation.lng}`
       );
-
+ 
       const data = await res.json();
-
+ 
       if (data.display_name) {
         fullAddress = data.display_name;
       }
-
+ 
     } catch (err) {
       console.log(err);
     }
   }
-
+ 
   const report = {
     id: 'r' + Date.now(),
     type: selectedType,
@@ -1374,18 +1371,18 @@ async function submitReport() {
     lat: reportLocation ? reportLocation.lat : (userLocation ? userLocation.lat : null),
     lng: reportLocation ? reportLocation.lng : (userLocation ? userLocation.lng : null)
   };
-
+ 
   DB.push('reports', report);
-
+ 
   if (leafletMap && report.lat && report.lng) {
-
+ 
     leafletMap.setView(
       [report.lat, report.lng],
       18
     );
-
+ 
   }
-
+ 
   // También lo agrega al foro como post de tipo reporte
   const forumPost = {
     id: 'fr' + Date.now(),
@@ -1398,15 +1395,15 @@ async function submitReport() {
     loc: null
   };
   DB.push('forum', forumPost);
-
+ 
   showToast(anon ? '📤 Reporte anónimo guardado' : '📤 Reporte guardado — visible en el mapa');
-
+ 
   // Reset form
   document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected'));
   document.getElementById('report-desc').value = '';
   document.getElementById('report-addr').value = '';
   selectedType = ''; selectedTag = ''; selectedColor = '';
-
+ 
   // Ir al mapa y mostrar el marcador del reporte recién creado
   setTimeout(() => {
     showScreen('screen-home');
@@ -1416,7 +1413,7 @@ async function submitReport() {
     }
   }, 800);
 }
-
+ 
 // ===================================================================
 // SOS — más dinámico
 // ===================================================================
@@ -1428,7 +1425,7 @@ function startPanic(e) {
   document.getElementById('panic-counting').style.display = 'block';
   document.getElementById('sos-count').textContent = sosCountdown;
   document.getElementById('panic-main').style.transform = 'scale(0.93)';
-
+ 
   countdownInterval = setInterval(() => {
     sosCountdown--;
     document.getElementById('sos-count').textContent = sosCountdown;
@@ -1449,10 +1446,10 @@ function activateSOS() {
   document.getElementById('panic-counting').style.display = 'none';
   const sent = document.getElementById('panic-sent');
   sent.classList.add('show');
-
+ 
   // Vibración si disponible
   if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 500]);
-
+ 
   // SOS guardado en DB
   const sosEvent = {
     id: 'sos' + Date.now(),
@@ -1461,7 +1458,7 @@ function activateSOS() {
     lat: -12.1213, lng: -77.0278
   };
   DB.push('sos_events', sosEvent);
-
+ 
   // También aparece en alertas y foro
   const forumPost = {
     id: 'fsos' + Date.now(),
@@ -1474,7 +1471,7 @@ function activateSOS() {
     loc: null
   };
   DB.push('forum', forumPost);
-
+ 
   const sosAlert = {
     id: 'sa' + Date.now(),
     type: '🆘 Alerta SOS',
@@ -1485,7 +1482,7 @@ function activateSOS() {
     tag:'robo', saved:true
   };
   DB.push('reports', sosAlert);
-
+ 
   // Progresión tracking
   setTimeout(() => { document.getElementById('tdot1').classList.add('active'); if(navigator.vibrate) navigator.vibrate(100); }, 3000);
   setTimeout(() => { document.getElementById('tdot2').classList.add('active'); if(navigator.vibrate) navigator.vibrate(200); }, 7000);
@@ -1496,30 +1493,30 @@ function cancelSOS() {
   ['tdot1','tdot2'].forEach(id => document.getElementById(id).classList.remove('active'));
   showToast('🚫 Alerta cancelada');
 }
-
+ 
 // ===================================================================
 // COMMUNITY / FORO — persistente
 // ===================================================================
 function renderForum() {
   const list = document.getElementById('forum-list');
   list.innerHTML = '';
-
+ 
   let posts = DB.get('forum', null);
   if (!posts) {
     // Primera vez: seed data
     DB.set('forum', FORUM_SEED);
     posts = FORUM_SEED;
   }
-
+ 
   const reports = DB.get('reports', []);
   document.getElementById('stat-reportes').textContent = reports.length;
   document.getElementById('stat-vec2').textContent = 47 + Math.floor(reports.length / 2);
-
+ 
   if (posts.length === 0) {
     list.innerHTML = '<p style="text-align:center;color:var(--text2);font-size:14px;padding:20px">Sé el primero en publicar algo 👋</p>';
     return;
   }
-
+ 
   posts.forEach((p, idx) => {
     const el = document.createElement('div');
     el.className = 'forum-post';
@@ -1540,7 +1537,7 @@ function renderForum() {
     list.appendChild(el);
   });
 }
-
+ 
 function likePost(idx, btn) {
   const posts = DB.get('forum', []);
   if (posts[idx]) {
@@ -1549,11 +1546,11 @@ function likePost(idx, btn) {
     btn.textContent = `👍 ${posts[idx].likes}`;
   }
 }
-
+ 
 function addPost() {
   const text = document.getElementById('new-post').value.trim();
   if (!text) { showToast('⚠️ Escribe algo primero'); return; }
-
+ 
   const post = {
     id: 'p' + Date.now(),
     author: currentUser ? currentUser.name : 'Vecino',
@@ -1564,14 +1561,14 @@ function addPost() {
     type: 'msg',
     loc: pendingLocation || null
   };
-
+ 
   DB.push('forum', post);
   pendingLocation = null;
   document.getElementById('new-post').value = '';
   showToast('✅ Publicado y guardado');
   renderForum();
 }
-
+ 
 // ===================================================================
 // COMPARTIR UBICACIÓN
 // ===================================================================
@@ -1611,7 +1608,7 @@ function showLocOnMap(lat, lng) {
     if (leafletMap) leafletMap.setView([lat, lng], 16);
   }, 200);
 }
-
+ 
 // ===================================================================
 // PANEL DE ADMINISTRADOR
 // ===================================================================
@@ -1621,7 +1618,7 @@ function switchAdminTab(tab) {
     document.getElementById(`admin-tab-${t}-btn`).classList.toggle('active', t === tab);
   });
 }
-
+ 
 function renderAdminPanel() {
   if (!currentUser || currentUser.role !== 'admin') { showScreen('screen-login'); return; }
   renderAdminReports();
@@ -1629,14 +1626,14 @@ function renderAdminPanel() {
   renderAdminUsers();
   renderAdminSOS();
 }
-
+ 
 function renderAdminReports() {
   const list = document.getElementById('admin-reports-list');
   const reports = DB.get('reports', []);
   document.getElementById('admin-stat-reports').textContent = reports.length;
-
+ 
   if (!reports.length) { list.innerHTML = '<div class="admin-empty">No hay reportes guardados.</div>'; return; }
-
+ 
   list.innerHTML = reports.map(r => `
     <div class="admin-item">
       <div class="admin-item-top">
@@ -1651,7 +1648,7 @@ function renderAdminReports() {
     </div>
   `).join('');
 }
-
+ 
 function deleteReportAdmin(id) {
   let reports = DB.get('reports', []);
   reports = reports.filter(r => r.id !== id);
@@ -1659,14 +1656,14 @@ function deleteReportAdmin(id) {
   showToast('🗑️ Reporte eliminado');
   renderAdminReports();
 }
-
+ 
 function renderAdminForum() {
   const list = document.getElementById('admin-forum-list');
   const posts = DB.get('forum', []);
   document.getElementById('admin-stat-forum').textContent = posts.length;
-
+ 
   if (!posts.length) { list.innerHTML = '<div class="admin-empty">No hay publicaciones en el foro.</div>'; return; }
-
+ 
   list.innerHTML = posts.map(p => `
     <div class="admin-item">
       <div class="admin-item-top">
@@ -1680,7 +1677,7 @@ function renderAdminForum() {
     </div>
   `).join('');
 }
-
+ 
 function deleteForumPostAdmin(id) {
   let posts = DB.get('forum', []);
   posts = posts.filter(p => p.id !== id);
@@ -1688,15 +1685,15 @@ function deleteForumPostAdmin(id) {
   showToast('🗑️ Publicación eliminada');
   renderAdminForum();
 }
-
+ 
 function renderAdminUsers() {
   const list = document.getElementById('admin-users-list');
   const users = DB.get('users', {});
   const entries = Object.values(users);
   document.getElementById('admin-stat-users').textContent = entries.length;
-
+ 
   if (!entries.length) { list.innerHTML = '<div class="admin-empty">No hay usuarios registrados.</div>'; return; }
-
+ 
   list.innerHTML = entries.map(u => `
     <div class="admin-item">
       <div class="admin-item-top">
@@ -1710,7 +1707,7 @@ function renderAdminUsers() {
     </div>
   `).join('');
 }
-
+ 
 function deleteUserAdmin(email) {
   const users = DB.get('users', {});
   delete users[email];
@@ -1718,14 +1715,14 @@ function deleteUserAdmin(email) {
   showToast('🗑️ Usuario eliminado');
   renderAdminUsers();
 }
-
+ 
 function renderAdminSOS() {
   const list = document.getElementById('admin-sos-list');
   const events = DB.get('sos_events', []);
   document.getElementById('admin-stat-sos').textContent = events.length;
-
+ 
   if (!events.length) { list.innerHTML = '<div class="admin-empty">No hay alertas SOS registradas.</div>'; return; }
-
+ 
   list.innerHTML = events.map(s => `
     <div class="admin-item">
       <div class="admin-item-top">
@@ -1738,7 +1735,7 @@ function renderAdminSOS() {
     </div>
   `).join('');
 }
-
+ 
 function deleteSOSAdmin(id) {
   let events = DB.get('sos_events', []);
   events = events.filter(s => s.id !== id);
@@ -1746,14 +1743,14 @@ function deleteSOSAdmin(id) {
   showToast('🗑️ Alerta SOS eliminada');
   renderAdminSOS();
 }
-
+ 
 // ===================================================================
 // INIT
 // ===================================================================
 window.addEventListener('load', () => {
   // Inicializar foro si vacío
   if (!DB.get('forum')) DB.set('forum', FORUM_SEED);
-
+ 
   // Crear cuenta de administrador de prueba si no existe
   const users = DB.get('users', {});
   if (!users['admin@alertavec.com']) {
@@ -1768,17 +1765,17 @@ window.addEventListener('load', () => {
     };
     DB.set('users', users);
   }
-
+ 
   // Auto-login si hay sesión guardada
   const saved = DB.get('currentUser');
   if (saved) {
     currentUser = saved;
   }
-
+ 
   document.getElementById('loading-overlay').classList.add('hidden');
   showScreen('screen-login');
 });
-
+ 
 // Registrar Service Worker (instalación PWA / modo offline)
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -1788,3 +1785,4 @@ if ('serviceWorker' in navigator) {
 </script>
 </body>
 </html>
+ 
